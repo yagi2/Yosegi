@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  APP_NAME: app
+  APP_NAME: yosegi
   BIN_DIR: bin
 
 tasks:
@@ -63,18 +63,18 @@ tasks:
     desc: Build the application
     cmds:
       - echo "Building application..."
-      - mkdir -p bin
-      - go build -o bin/app .
-      - echo "Built bin/app"
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} .
+      - echo "Built {{.BIN_DIR}}/{{.APP_NAME}}"
 
   build-release:
     desc: Build optimized release binary
     cmds:
       - echo "Building optimized release binary..."
-      - mkdir -p bin
-      - go build -ldflags="-s -w" -o bin/app .
-      - echo "Built optimized bin/app"
-      - ls -lh bin/app
+      - mkdir -p {{.BIN_DIR}}
+      - go build -ldflags="-s -w" -o {{.BIN_DIR}}/{{.APP_NAME}} .
+      - echo "Built optimized {{.BIN_DIR}}/{{.APP_NAME}}"
+      - ls -lh {{.BIN_DIR}}/{{.APP_NAME}}
 
   clean:
     desc: Remove build artifacts

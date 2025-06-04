@@ -9,9 +9,9 @@ This is a Go CLI application template repository designed for GitHub Codespaces 
 ## Development Commands
 
 ### Building and Running
-- `go build -o bin/app .` - Build the CLI application
+- `go build -o bin/yosegi .` - Build the CLI application
 - `go run main.go` - Run the application directly
-- `./bin/app` - Run the built binary
+- `./bin/yosegi` - Run the built binary
 
 ### Testing and Quality
 - `go test ./...` - Run all tests
@@ -29,7 +29,7 @@ This is a Go CLI application template repository designed for GitHub Codespaces 
 ## Performance Optimization for Claude Code
 
 ### Quick Commands
-- `go build -ldflags="-s -w" -o bin/app .` - Build with optimization flags (reduces binary size)
+- `go build -ldflags="-s -w" -o bin/yosegi .` - Build with optimization flags (reduces binary size)
 - `go test -short ./...` - Run only short tests for quick feedback
 - `go mod why <package>` - Check why a dependency exists
 - `go list -m all` - List all dependencies quickly
