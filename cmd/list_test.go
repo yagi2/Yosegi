@@ -165,8 +165,9 @@ func TestListCommandFlags(t *testing.T) {
 	if flags.HasFlags() {
 		// Check if there are any unexpected flags
 		expectedFlags := map[string]bool{
-			"help":  true,
-			"plain": true,
+			"help":        true,
+			"plain":       true,
+			"interactive": true,
 		}
 		flags.VisitAll(func(flag *pflag.Flag) {
 			if !expectedFlags[flag.Name] {

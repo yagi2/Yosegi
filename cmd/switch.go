@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	switchPlainOutput bool
+	switchPlainOutput       bool
+	switchForceInteractive bool
 )
 
 var switchCmd = &cobra.Command{
@@ -73,8 +74,8 @@ var switchCmd = &cobra.Command{
 			return nil
 		}
 
-		// Check if plain output is explicitly requested
-		if switchPlainOutput {
+		// Check if plain output is explicitly requested or shell integration is active (unless forced interactive)
+		if switchPlainOutput || (os.Getenv("YOSEGI_SHELL_INTEGRATION") != "" && !switchForceInteractive) {
 			// Plain output mode - just list worktrees for manual selection
 			fmt.Println("Available worktrees:")
 			for i, wt := range worktrees {
@@ -128,5 +129,6 @@ var switchCmd = &cobra.Command{
 
 func init() {
 	switchCmd.Flags().BoolVarP(&switchPlainOutput, "plain", "", false, "Output in plain text format")
+	switchCmd.Flags().BoolVarP(&switchForceInteractive, "interactive", "i", false, "Force interactive mode even with shell integration")
 	rootCmd.AddCommand(switchCmd)
 }

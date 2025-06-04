@@ -166,8 +166,9 @@ func TestSwitchCommandFlags(t *testing.T) {
 	if flags.HasFlags() {
 		// Check if there are any unexpected flags
 		expectedFlags := map[string]bool{
-			"help":  true,
-			"plain": true,
+			"help":        true,
+			"plain":       true,
+			"interactive": true,
 		}
 		flags.VisitAll(func(flag *pflag.Flag) {
 			if !expectedFlags[flag.Name] {
@@ -366,7 +367,8 @@ func TestSwitchCommandNoFlags(t *testing.T) {
 
 	// Should have our plain flag as local flag
 	expectedLocalFlags := map[string]bool{
-		"plain": true,
+		"plain":       true,
+		"interactive": true,
 	}
 
 	if localFlags.HasFlags() {
