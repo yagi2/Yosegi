@@ -4,7 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Go CLI application template repository designed for GitHub Codespaces with Claude Code integration. The project uses standard Go tooling and follows conventional Go project structure. It includes Claude Code for AI-assisted development directly in the Codespace terminal.
+Yosegi is an interactive git worktree management tool with a beautiful TUI (Terminal User Interface). It provides an intuitive visual interface similar to tools like `tig` or `peco` for managing multiple git worktrees efficiently. Built with Go using the Cobra CLI framework and Bubble Tea for the TUI, Yosegi makes git worktree operations simple and enjoyable.
+
+## CLI Commands
+
+### Yosegi Commands
+- `yosegi` - Run list command by default (interactive worktree selector)
+- `yosegi list` (aliases: `ls`, `l`) - List all worktrees interactively
+- `yosegi new [branch]` (aliases: `add`, `create`, `n`) - Create a new worktree
+  - `-b, --create-branch` - Create a new branch
+  - `-p, --path` - Specify worktree path
+- `yosegi remove` (aliases: `rm`, `delete`, `del`, `r`) - Remove a worktree
+  - `-f, --force` - Force removal
+- `yosegi config init` - Create default config file
+- `yosegi config show` - Display current configuration
 
 ## Development Commands
 
@@ -39,13 +52,20 @@ This is a Go CLI application template repository designed for GitHub Codespaces 
 - Leverage `stringer` for enum string methods: `//go:generate stringer -type=MyEnum`
 - Use `mockgen` for test mocks: `//go:generate mockgen -source=interface.go -destination=mock.go`
 
+### Key Dependencies
+- **Cobra** (github.com/spf13/cobra) - CLI framework for command structure
+- **Bubble Tea** (github.com/charmbracelet/bubbletea) - TUI framework
+- **Bubbles** (github.com/charmbracelet/bubbles) - Pre-built TUI components
+- **Lip Gloss** (github.com/charmbracelet/lipgloss) - Terminal styling
+- **yaml.v3** (gopkg.in/yaml.v3) - Configuration file handling
+
 ### Preferred Patterns
 - Use table-driven tests for better readability and maintenance
 - Implement interfaces for testability and loose coupling
 - Use context.Context for cancellation and timeout control
 - Prefer error wrapping with `fmt.Errorf("%w", err)` for better error traces
-- Use `sync.Pool` for frequently allocated objects
-- Leverage `go:embed` for embedding static files
+- Mock external dependencies (git commands) in tests
+- Follow Bubble Tea patterns for TUI components
 
 ### Quick Development Workflow
 - Use `task` commands for common tasks (see Taskfile.yml)
@@ -57,12 +77,20 @@ This is a Go CLI application template repository designed for GitHub Codespaces 
 
 ## Architecture
 
-This is a template project for Go CLI applications. The main entry point is in `main.go`. When developing CLI applications from this template:
+Yosegi follows a clean architecture pattern with clear separation of concerns:
 
-- Use standard Go project layout conventions
-- CLI functionality should typically use libraries like `cobra` or `flag` for argument parsing
-- Consider using `viper` for configuration management
-- Follow Go naming conventions and package organization
+- **main.go**: Application entry point
+- **cmd/**: Cobra command definitions (list, new, remove, config)
+- **internal/config/**: Configuration management with YAML support
+- **internal/git/**: Git worktree operations wrapper
+- **internal/ui/**: Bubble Tea TUI components (input, selector, styles)
+
+Key design decisions:
+- Uses Cobra for robust CLI command handling
+- Implements interactive TUI with Bubble Tea framework
+- Provides Vim-style keybindings (j/k navigation)
+- YAML-based configuration for customization
+- Comprehensive test coverage for all components
 
 ## Development Best Practices
 - Run `task lint` before you create commit.
@@ -72,13 +100,38 @@ This is a template project for Go CLI applications. The main entry point is in `
 ## Available Tasks
 Run `task --list-all` to see all available tasks. Key tasks include:
 - `task dev` - Run in development mode
-- `task test` - Run all tests
+- `task test` - Run all tests with race detection
 - `task test-short` - Run short tests with coverage
-- `task lint` - Run all linting checks
+- `task lint` - Run all linting checks (fmt, vet, golangci-lint)
 - `task build` - Build the application
 - `task build-release` - Build optimized release binary
+- `task install` - Install to GOPATH/bin
 - `task clean` - Clean build artifacts
 - `task ci` - Run all CI checks
+
+## Yosegi-Specific Development Guidelines
+
+### TUI Development
+- Use Bubble Tea patterns for TUI components (Model, Update, View)
+- Follow existing key binding conventions (j/k for navigation, Enter for selection)
+- Maintain consistent styling using Lip Gloss
+- Test TUI components with mock git operations
+
+### Git Worktree Operations
+- All git operations should go through `internal/git/worktree.go`
+- Handle edge cases (current worktree, invalid paths, etc.)
+- Provide clear error messages for git operation failures
+
+### Configuration
+- Configuration is stored in `~/.config/yosegi/config.yaml`
+- Support both default and custom configurations
+- Validate configuration values appropriately
+
+### Testing Strategy
+- Write table-driven tests for command logic
+- Mock git operations for unit tests
+- Test both success and error paths
+- Ensure TUI components handle all user inputs gracefully
 
 ## Interaction Guidelines
 - Always response in Japanese
