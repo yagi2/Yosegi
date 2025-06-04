@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	createBranch bool
-	worktreePath string
+	createBranch    bool
+	createBranchSet bool // Track if the flag was explicitly set
+	worktreePath    string
 )
 
 var newCmd = &cobra.Command{
@@ -103,8 +104,8 @@ var newCmd = &cobra.Command{
 		}
 
 		// Create the worktree
-		// Use config auto_create_branch if createBranch flag is not set
-		if !createBranch && cfg.Git.AutoCreateBranch {
+		// Use config auto_create_branch if createBranch flag is not explicitly set
+		if !createBranchSet && cfg.Git.AutoCreateBranch {
 			createBranch = true
 		}
 
@@ -128,7 +129,15 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
-	newCmd.Flags().BoolVarP(&createBranch, "create-branch", "b", false, "Create a new branch")
-	newCmd.Flags().StringVarP(&worktreePath, "path", "p", "", "Path for the new worktree")
+	flags := newCmd.Flags()
+	flags.BoolVarP(&createBranch, "create-branch", "b", false, "Create a new branch")
+	flags.StringVarP(&worktreePath, "path", "p", "", "Path for the new worktree")
+
+	// Mark that create-branch flag was explicitly set
+	newCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		createBranchSet = flags.Changed("create-branch")
+		return nil
+	}
+
 	rootCmd.AddCommand(newCmd)
 }

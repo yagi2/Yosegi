@@ -511,8 +511,11 @@ func TestManagerAddErrors(t *testing.T) {
 		t.Error("Expected error for non-existent repository")
 	}
 
-	if !strings.Contains(err.Error(), "failed to add worktree") {
-		t.Errorf("Expected specific error message, got: %v", err)
+	// The error could be either about the branch not existing or a command failure
+	hasExpectedError := strings.Contains(err.Error(), "failed to add worktree") ||
+		strings.Contains(err.Error(), "does not exist")
+	if !hasExpectedError {
+		t.Errorf("Expected error about failed worktree or non-existent branch, got: %v", err)
 	}
 }
 

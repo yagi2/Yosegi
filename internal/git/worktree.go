@@ -96,25 +96,32 @@ func (m *manager) List() ([]Worktree, error) {
 // Add creates a new worktree
 func (m *manager) Add(path, branch string, createBranch bool) error {
 	// Check if branch exists
-	if !createBranch {
-		checkCmd := exec.Command("git", "rev-parse", "--verify", fmt.Sprintf("refs/heads/%s", branch))
-		checkCmd.Dir = m.repoRoot
-		if err := checkCmd.Run(); err != nil {
-			// Branch doesn't exist, so create it
-			createBranch = true
-		}
-	}
+	checkCmd := exec.Command("git", "rev-parse", "--verify", fmt.Sprintf("refs/heads/%s", branch))
+	checkCmd.Dir = m.repoRoot
+	branchExists := checkCmd.Run() == nil
 
 	args := []string{"worktree", "add"}
-	if createBranch {
-		args = append(args, "-b", branch)
+	if createBranch && !branchExists {
+		// Create new branch
+		args = append(args, "-b", branch, path)
+	} else if branchExists && !createBranch {
+		// Use existing branch
+		args = append(args, path, branch)
+	} else if !branchExists && !createBranch {
+		// Branch doesn't exist and user doesn't want to create it
+		return fmt.Errorf("branch '%s' does not exist. Use --create-branch flag to create it", branch)
+	} else if branchExists && createBranch {
+		// Branch exists but user wants to create it
+		return fmt.Errorf("branch '%s' already exists. Remove --create-branch flag to use existing branch", branch)
 	}
-	args = append(args, path, branch)
 
 	cmd := exec.Command("git", args...)
 	cmd.Dir = m.repoRoot
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to add worktree: %w", err)
+
+	// Get detailed error output for debugging
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to add worktree (command: git %v): %w\nOutput: %s", args, err, string(output))
 	}
 	return nil
 }
