@@ -4,6 +4,9 @@
 # Add this to your ~/.bashrc or ~/.bash_profile:
 # source /path/to/yosegi/scripts/shell_integration.bash
 
+# Mark that shell integration is active
+export YOSEGI_SHELL_INTEGRATION=1
+
 yosegi() {
     local result
     result=$(command yosegi "$@")

@@ -4,6 +4,9 @@
 # Add this to your ~/.config/fish/config.fish:
 # source /path/to/yosegi/scripts/shell_integration.fish
 
+# Mark that shell integration is active
+set -gx YOSEGI_SHELL_INTEGRATION 1
+
 function yosegi
     set result (command yosegi $argv)
     set exit_code $status

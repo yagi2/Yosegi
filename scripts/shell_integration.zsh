@@ -4,6 +4,9 @@
 # Add this to your ~/.zshrc:
 # source /path/to/yosegi/scripts/shell_integration.zsh
 
+# Mark that shell integration is active
+export YOSEGI_SHELL_INTEGRATION=1
+
 yosegi() {
     local result
     result=$(command yosegi "$@")

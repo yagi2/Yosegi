@@ -9,6 +9,10 @@ import (
 	"github.com/yagi2/yosegi/internal/ui"
 )
 
+var (
+	plainOutput bool
+)
+
 var listCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List all git worktrees",
@@ -23,6 +27,25 @@ var listCmd = &cobra.Command{
 		worktrees, err := manager.List()
 		if err != nil {
 			return fmt.Errorf("failed to list worktrees: %w", err)
+		}
+
+		// Check if TTY is available or plain output is requested
+		if plainOutput || !isatty() {
+			// Plain output mode
+			if len(worktrees) == 0 {
+				fmt.Println("No worktrees found")
+				return nil
+			}
+
+			fmt.Println("Git Worktrees:")
+			for _, wt := range worktrees {
+				current := ""
+				if wt.IsCurrent {
+					current = " (current)"
+				}
+				fmt.Printf("  %s [%s]%s\n", wt.Path, wt.Branch, current)
+			}
+			return nil
 		}
 
 		// Interactive mode
@@ -44,5 +67,6 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
+	listCmd.Flags().BoolVarP(&plainOutput, "plain", "", false, "Output in plain text format")
 	rootCmd.AddCommand(listCmd)
 }
