@@ -67,6 +67,7 @@ This is a template project for Go CLI applications. The main entry point is in `
 ## Development Best Practices
 - Run `task lint` before you create commit.
 - Use `task --list-all` to see all available tasks.
+- Always create commit message in English
 
 ## Available Tasks
 Run `task --list-all` to see all available tasks. Key tasks include:
@@ -78,3 +79,6 @@ Run `task --list-all` to see all available tasks. Key tasks include:
 - `task build-release` - Build optimized release binary
 - `task clean` - Clean build artifacts
 - `task ci` - Run all CI checks
+
+## Interaction Guidelines
+- Always response in Japanese

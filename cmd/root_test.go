@@ -39,13 +39,12 @@ func TestRootCommand(t *testing.T) {
 			expectedError: false,
 		},
 		{
-			name: "No arguments (should show help)",
+			name: "No arguments (should run default list behavior)",
 			args: []string{},
 			expectedOutput: []string{
-				"Yosegi is a CLI tool for managing git worktrees",
-				"Usage:",
+				// Running in git repo, should work without error
 			},
-			expectedError: false,
+			expectedError: false, // Should work in current git repo
 		},
 		{
 			name: "Invalid command",
@@ -288,12 +287,12 @@ func TestRootCommandExecution(t *testing.T) {
 
 func TestRootCommandValidation(t *testing.T) {
 	// Test command structure validation
-	if rootCmd.RunE != nil {
-		t.Errorf("Root command should not have RunE set (should show help)")
+	if rootCmd.RunE == nil {
+		t.Errorf("Root command should have RunE set (runs default list behavior)")
 	}
 
 	if rootCmd.Run != nil {
-		t.Errorf("Root command should not have Run set (should show help)")
+		t.Errorf("Root command should not have Run set (should use RunE)")
 	}
 
 	// Test that the command can be executed without panicking

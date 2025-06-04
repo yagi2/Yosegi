@@ -102,7 +102,9 @@ aliases:
 ### 典型的なワークフロー
 
 ```bash
-# 現在のworktreeを一覧表示
+# 現在のworktreeを一覧表示（サブコマンド無しでも実行可能）
+yosegi
+# または
 yosegi list
 
 # 機能開発用の新しいworktreeを作成
