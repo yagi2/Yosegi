@@ -2,17 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/yagi2/yosegi/internal/git"
 	"github.com/yagi2/yosegi/internal/ui"
-)
-
-var (
-	plainOutput       bool
-	forceInteractive bool
 )
 
 var listCmd = &cobra.Command{
@@ -29,25 +23,6 @@ var listCmd = &cobra.Command{
 		worktrees, err := manager.List()
 		if err != nil {
 			return fmt.Errorf("failed to list worktrees: %w", err)
-		}
-
-		// Check if plain output is explicitly requested or shell integration is active (unless forced interactive)
-		if plainOutput || (os.Getenv("YOSEGI_SHELL_INTEGRATION") != "" && !forceInteractive) {
-			// Plain output mode
-			if len(worktrees) == 0 {
-				fmt.Println("No worktree found")
-				return nil
-			}
-
-			fmt.Println("Git Worktrees:")
-			for _, wt := range worktrees {
-				current := ""
-				if wt.IsCurrent {
-					current = " (current)"
-				}
-				fmt.Printf("  %s [%s]%s\n", wt.Path, wt.Branch, current)
-			}
-			return nil
 		}
 
 		// Interactive mode
@@ -69,7 +44,5 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	listCmd.Flags().BoolVarP(&plainOutput, "plain", "", false, "Output in plain text format")
-	listCmd.Flags().BoolVarP(&forceInteractive, "interactive", "i", false, "Force interactive mode even with shell integration")
 	rootCmd.AddCommand(listCmd)
 }

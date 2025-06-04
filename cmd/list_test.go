@@ -161,13 +161,11 @@ func TestListCommandFlags(t *testing.T) {
 	// List command should be simple with no additional flags
 	flags := listCmd.Flags()
 
-	// Should have inherited flags from cobra (help, etc.) and our plain flag
+	// Should only have inherited flags from cobra (help, etc.)
 	if flags.HasFlags() {
 		// Check if there are any unexpected flags
 		expectedFlags := map[string]bool{
-			"help":        true,
-			"plain":       true,
-			"interactive": true,
+			"help": true,
 		}
 		flags.VisitAll(func(flag *pflag.Flag) {
 			if !expectedFlags[flag.Name] {

@@ -162,13 +162,11 @@ func TestSwitchCommandFlags(t *testing.T) {
 	// Switch command should be simple with no additional flags
 	flags := switchCmd.Flags()
 
-	// Should have inherited flags from cobra (help, etc.) and our plain flag
+	// Should only have inherited flags from cobra (help, etc.)
 	if flags.HasFlags() {
 		// Check if there are any unexpected flags
 		expectedFlags := map[string]bool{
-			"help":        true,
-			"plain":       true,
-			"interactive": true,
+			"help": true,
 		}
 		flags.VisitAll(func(flag *pflag.Flag) {
 			if !expectedFlags[flag.Name] {
@@ -365,17 +363,10 @@ func TestSwitchCommandNoFlags(t *testing.T) {
 	// Test that switch command has no custom flags (only inherited ones)
 	localFlags := switchCmd.LocalFlags()
 
-	// Should have our plain flag as local flag
-	expectedLocalFlags := map[string]bool{
-		"plain":       true,
-		"interactive": true,
-	}
-
+	// Should have no local flags
 	if localFlags.HasFlags() {
 		localFlags.VisitAll(func(flag *pflag.Flag) {
-			if !expectedLocalFlags[flag.Name] {
-				t.Errorf("Unexpected local flag '%s' found in switch command", flag.Name)
-			}
+			t.Errorf("Switch command should not have local flag '%s'", flag.Name)
 		})
 	}
 }

@@ -11,11 +11,6 @@ import (
 	"github.com/yagi2/yosegi/internal/ui"
 )
 
-var (
-	switchPlainOutput       bool
-	switchForceInteractive bool
-)
-
 var switchCmd = &cobra.Command{
 	Use:     "switch",
 	Short:   "Switch to a different worktree",
@@ -74,21 +69,6 @@ var switchCmd = &cobra.Command{
 			return nil
 		}
 
-		// Check if plain output is explicitly requested or shell integration is active (unless forced interactive)
-		if switchPlainOutput || (os.Getenv("YOSEGI_SHELL_INTEGRATION") != "" && !switchForceInteractive) {
-			// Plain output mode - just list worktrees for manual selection
-			fmt.Println("Available worktrees:")
-			for i, wt := range worktrees {
-				current := ""
-				if wt.IsCurrent {
-					current = " (current)"
-				}
-				fmt.Printf("  %d. %s [%s]%s\n", i+1, wt.Path, wt.Branch, current)
-			}
-			fmt.Println("\nUsage: yosegi switch <path|branch>")
-			return nil
-		}
-
 		// Interactive mode
 		model := ui.NewSelector(worktrees, "Switch Worktree", "switch", false)
 		program := tea.NewProgram(model)
@@ -128,7 +108,5 @@ var switchCmd = &cobra.Command{
 }
 
 func init() {
-	switchCmd.Flags().BoolVarP(&switchPlainOutput, "plain", "", false, "Output in plain text format")
-	switchCmd.Flags().BoolVarP(&switchForceInteractive, "interactive", "i", false, "Force interactive mode even with shell integration")
 	rootCmd.AddCommand(switchCmd)
 }
