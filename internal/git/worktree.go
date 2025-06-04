@@ -144,7 +144,7 @@ func (m *manager) GetCurrentPath() (string, error) {
 func parseWorktreeList(output string) ([]Worktree, error) {
 	var worktrees []Worktree
 	var current Worktree
-	
+
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	if len(lines) == 1 && lines[0] == "" {
 		return worktrees, nil

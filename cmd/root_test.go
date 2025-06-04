@@ -168,7 +168,7 @@ func TestRootCommandConfiguration(t *testing.T) {
 func TestRootCommandHasSubcommands(t *testing.T) {
 	expectedCommands := []string{
 		"config",
-		"list", 
+		"list",
 		"new",
 		"remove",
 		"switch",
@@ -176,7 +176,7 @@ func TestRootCommandHasSubcommands(t *testing.T) {
 
 	commands := rootCmd.Commands()
 	commandNames := make(map[string]bool)
-	
+
 	for _, cmd := range commands {
 		commandNames[cmd.Name()] = true
 	}
@@ -198,7 +198,7 @@ func TestRootCommandHelp(t *testing.T) {
 		"Zsh (~/.zshrc):",
 		"Fish (~/.config/fish/config.fish):",
 		"shell_integration.bash",
-		"shell_integration.zsh", 
+		"shell_integration.zsh",
 		"shell_integration.fish",
 	}
 
@@ -213,13 +213,12 @@ func TestExecuteFunction(t *testing.T) {
 	// This is a basic test to ensure Execute function exists
 	// We can't easily test the actual execution without complex setup
 	// because it involves os.Exit and real command execution
-	
+
 	// Just verify that the function exists by checking it can be assigned
 	executeFunc := Execute
-	if executeFunc == nil {
-		t.Error("Execute function should not be nil")
-	}
-	
+	// Function variables are never nil in Go, so we just ensure assignment works
+	_ = executeFunc // Use the variable to avoid unused variable warning
+
 	// This test primarily documents that the Execute function exists
 	// and can be referenced without panicking
 }
@@ -227,15 +226,13 @@ func TestExecuteFunction(t *testing.T) {
 func TestExecuteFunctionExists(t *testing.T) {
 	// Test that Execute function is properly defined
 	// This covers the Execute function for coverage
-	
+
 	// Verify function signature by assignment
-	var execFunc func()
-	execFunc = Execute
-	
-	if execFunc == nil {
-		t.Error("Execute function should be assignable")
-	}
-	
+	execFunc := Execute
+
+	// Function variables are never nil in Go, so we just ensure assignment works
+	_ = execFunc
+
 	// Test that the function can be referenced
 	_ = Execute
 }
@@ -243,11 +240,11 @@ func TestExecuteFunctionExists(t *testing.T) {
 func TestExecuteFunctionDocumentation(t *testing.T) {
 	// Test Execute function behavior documentation
 	// Execute should:
-	// 1. Load configuration 
+	// 1. Load configuration
 	// 2. Initialize theme if config loads successfully
 	// 3. Execute root command
 	// 4. Handle errors by printing to stderr and exiting
-	
+
 	// This test documents the expected behavior
 	// Actual testing requires mocking os.Exit which is complex
 }
@@ -255,7 +252,7 @@ func TestExecuteFunctionDocumentation(t *testing.T) {
 func TestRootCommandExecution(t *testing.T) {
 	// Test root command execution without calling Execute() directly
 	// to avoid os.Exit side effects
-	
+
 	// Create isolated test command
 	testCmd := &cobra.Command{
 		Use:     rootCmd.Use,
@@ -263,7 +260,7 @@ func TestRootCommandExecution(t *testing.T) {
 		Long:    rootCmd.Long,
 		Version: rootCmd.Version,
 	}
-	
+
 	// Add all subcommands to test command
 	for _, cmd := range rootCmd.Commands() {
 		// Create a copy of the command for testing
@@ -276,13 +273,13 @@ func TestRootCommandExecution(t *testing.T) {
 		}
 		testCmd.AddCommand(testSubCmd)
 	}
-	
+
 	testCmd.CompletionOptions.DisableDefaultCmd = true
-	
+
 	// Test various scenarios
 	tests := []struct {
-		name string
-		args []string
+		name        string
+		args        []string
 		expectError bool
 	}{
 		{"help", []string{"--help"}, false},
@@ -293,16 +290,16 @@ func TestRootCommandExecution(t *testing.T) {
 		{"switch help", []string{"switch", "--help"}, false},
 		{"config help", []string{"config", "--help"}, false},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var buf bytes.Buffer
 			testCmd.SetOut(&buf)
 			testCmd.SetErr(&buf)
 			testCmd.SetArgs(tt.args)
-			
+
 			err := testCmd.Execute()
-			
+
 			if tt.expectError && err == nil {
 				t.Error("Expected error but got none")
 			}
@@ -345,7 +342,7 @@ func TestRootCommandValidation(t *testing.T) {
 func TestCommandAliases(t *testing.T) {
 	// Test that subcommands have expected aliases
 	commands := rootCmd.Commands()
-	
+
 	expectedAliases := map[string][]string{
 		"list":   {"ls", "l"},
 		"new":    {"add", "create", "n"},
@@ -382,12 +379,12 @@ func TestCommandAliases(t *testing.T) {
 func TestRootCommandFlags(t *testing.T) {
 	// Test that root command has expected flags
 	// Help and version flags are automatically added by cobra
-	
+
 	// Test that version is set
 	if rootCmd.Version == "" {
 		t.Errorf("Expected root command to have version set")
 	}
-	
+
 	// Test that help can be accessed (this tests the underlying cobra functionality)
 	var buf bytes.Buffer
 	testCmd := &cobra.Command{
@@ -399,12 +396,12 @@ func TestRootCommandFlags(t *testing.T) {
 	testCmd.SetOut(&buf)
 	testCmd.SetErr(&buf)
 	testCmd.SetArgs([]string{"--help"})
-	
+
 	err := testCmd.Execute()
 	if err != nil {
 		t.Errorf("Help flag should work without error: %v", err)
 	}
-	
+
 	output := buf.String()
 	if !strings.Contains(output, "Yosegi is a CLI tool") {
 		t.Errorf("Help output should contain main description, got: %s", output)
@@ -450,6 +447,9 @@ func BenchmarkRootCommandHelp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
-		testCmd.Execute()
+		if err := testCmd.Execute(); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Command execution error: %v", err)
+		}
 	}
 }

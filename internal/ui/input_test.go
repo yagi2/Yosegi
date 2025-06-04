@@ -240,9 +240,9 @@ func TestInputUpdate(t *testing.T) {
 
 func TestInputView(t *testing.T) {
 	tests := []struct {
-		name             string
-		setupModel       func() InputModel
-		expectedContains []string
+		name                string
+		setupModel          func() InputModel
+		expectedContains    []string
 		expectedNotContains []string
 	}{
 		{

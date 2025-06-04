@@ -205,7 +205,7 @@ func TestSelectorUpdate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			model := tt.initialModel
 			newModel, cmd := model.Update(tt.msg)
-			
+
 			updatedModel := newModel.(SelectorModel)
 
 			if updatedModel.cursor != tt.expectedCursor {
@@ -263,9 +263,9 @@ func TestSelectorView(t *testing.T) {
 	}
 
 	tests := []struct {
-		name             string
-		model            SelectorModel
-		expectedContains []string
+		name                string
+		model               SelectorModel
+		expectedContains    []string
 		expectedNotContains []string
 	}{
 		{

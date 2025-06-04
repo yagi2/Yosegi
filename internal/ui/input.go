@@ -9,12 +9,12 @@ import (
 )
 
 type InputModel struct {
-	title       string
-	inputs      []textinput.Model
-	focused     int
-	submitted   bool
-	cancelled   bool
-	values      []string
+	title     string
+	inputs    []textinput.Model
+	focused   int
+	submitted bool
+	cancelled bool
+	values    []string
 }
 
 type InputResult struct {
@@ -24,20 +24,20 @@ type InputResult struct {
 
 func NewInput(title string, prompts []string, defaults []string) InputModel {
 	inputs := make([]textinput.Model, len(prompts))
-	
+
 	for i, prompt := range prompts {
 		input := textinput.New()
 		input.Placeholder = prompt
 		input.CharLimit = 200
-		
+
 		if i < len(defaults) && defaults[i] != "" {
 			input.SetValue(defaults[i])
 		}
-		
+
 		if i == 0 {
 			input.Focus()
 		}
-		
+
 		inputs[i] = input
 	}
 

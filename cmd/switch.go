@@ -11,9 +11,9 @@ import (
 )
 
 var switchCmd = &cobra.Command{
-	Use:   "switch",
-	Short: "Switch to a different worktree",
-	Long:  "Interactively select and switch to a different git worktree.",
+	Use:     "switch",
+	Short:   "Switch to a different worktree",
+	Long:    "Interactively select and switch to a different git worktree.",
 	Aliases: []string{"sw", "s", "cd"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		manager, err := git.NewManager()
@@ -34,7 +34,7 @@ var switchCmd = &cobra.Command{
 		// Interactive mode
 		model := ui.NewSelector(worktrees, "Switch Worktree", "switch", false)
 		program := tea.NewProgram(model)
-		
+
 		finalModel, err := program.Run()
 		if err != nil {
 			return fmt.Errorf("failed to run interactive interface: %w", err)
@@ -51,7 +51,7 @@ var switchCmd = &cobra.Command{
 			if err != nil {
 				absPath = result.Worktree.Path
 			}
-			
+
 			fmt.Printf("CD:%s\n", absPath)
 		}
 

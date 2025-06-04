@@ -42,7 +42,7 @@ var configShowCmd = &cobra.Command{
 		fmt.Printf("  Show Icons: %t\n", cfg.UI.ShowIcons)
 		fmt.Printf("  Confirm Delete: %t\n", cfg.UI.ConfirmDelete)
 		fmt.Printf("  Max Path Length: %d\n", cfg.UI.MaxPathLength)
-		
+
 		if len(cfg.Aliases) > 0 {
 			fmt.Println("  Aliases:")
 			for alias, command := range cfg.Aliases {

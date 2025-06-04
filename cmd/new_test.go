@@ -132,7 +132,7 @@ func TestNewCommandFlags(t *testing.T) {
 
 func TestNewCommandFlagValues(t *testing.T) {
 	// Test that flag variables are properly connected
-	
+
 	// Reset to known state
 	createBranch = false
 	worktreePath = ""
@@ -199,7 +199,7 @@ func TestNewCommandHelp(t *testing.T) {
 	}
 
 	output := buf.String()
-	
+
 	// Basic check that help was generated
 	if len(output) == 0 {
 		t.Error("Help output should not be empty")
@@ -209,7 +209,7 @@ func TestNewCommandHelp(t *testing.T) {
 func TestNewCommandByAlias(t *testing.T) {
 	// Test that aliases work correctly by checking they're properly set
 	aliases := newCmd.Aliases
-	
+
 	expectedAliases := []string{"add", "create", "n"}
 	if len(aliases) != len(expectedAliases) {
 		t.Errorf("Expected %d aliases, got %d", len(expectedAliases), len(aliases))
@@ -270,7 +270,7 @@ func TestNewCommandPath(t *testing.T) {
 	// Test command path construction
 	expectedPath := "yosegi new"
 	actualPath := newCmd.CommandPath()
-	
+
 	if actualPath != expectedPath {
 		t.Errorf("Expected command path '%s', got '%s'", expectedPath, actualPath)
 	}
@@ -279,12 +279,12 @@ func TestNewCommandPath(t *testing.T) {
 func TestNewCommandUsage(t *testing.T) {
 	// Test usage string generation
 	usage := newCmd.UsageString()
-	
+
 	// Basic check that usage string is generated
 	if len(usage) == 0 {
 		t.Error("Usage string should not be empty")
 	}
-	
+
 	// Should contain the command name
 	if !strings.Contains(usage, "new") {
 		t.Error("Usage should contain command name 'new'")
@@ -296,16 +296,18 @@ func TestNewCommandFlagShorthands(t *testing.T) {
 	testCmd := &cobra.Command{
 		Use: "new [branch]",
 	}
-	
+
 	var testCreateBranch bool
 	var testWorktreePath string
-	
+
 	testCmd.Flags().BoolVarP(&testCreateBranch, "create-branch", "b", false, "Create a new branch")
 	testCmd.Flags().StringVarP(&testWorktreePath, "path", "p", "", "Path for the new worktree")
 
 	// Test short flag parsing
 	testCmd.SetArgs([]string{"-b", "-p", "/test/path", "test-branch"})
-	testCmd.ParseFlags([]string{"-b", "-p", "/test/path"})
+	if err := testCmd.ParseFlags([]string{"-b", "-p", "/test/path"}); err != nil {
+		t.Fatalf("Failed to parse flags: %v", err)
+	}
 
 	if !testCreateBranch {
 		t.Error("Short flag -b should set create-branch to true")
@@ -336,7 +338,7 @@ func TestNewCommandCompletion(t *testing.T) {
 	if newCmd.ValidArgsFunction != nil {
 		// If completion is set up, test it
 		completions, directive := newCmd.ValidArgsFunction(newCmd, []string{}, "")
-		
+
 		// We don't expect specific completions but should not error
 		_ = completions
 		_ = directive
@@ -353,7 +355,7 @@ func TestNewCommandGroups(t *testing.T) {
 
 func TestNewCommandAnnotations(t *testing.T) {
 	// Test command annotations (if any)
-	if newCmd.Annotations != nil && len(newCmd.Annotations) > 0 {
+	if len(newCmd.Annotations) > 0 {
 		t.Logf("New command has %d annotations", len(newCmd.Annotations))
 		for key, value := range newCmd.Annotations {
 			t.Logf("Annotation %s: %s", key, value)
@@ -366,7 +368,7 @@ func TestNewCommandIntegration(t *testing.T) {
 	// Verify the command is properly integrated
 	found := false
 	var foundCmd *cobra.Command
-	
+
 	for _, cmd := range rootCmd.Commands() {
 		if cmd.Use == "new [branch]" {
 			found = true
@@ -374,21 +376,21 @@ func TestNewCommandIntegration(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Fatal("New command not found in root command")
 	}
-	
+
 	// Test that it's the same command
 	if foundCmd != newCmd {
 		t.Error("Found command is not the same as newCmd")
 	}
-	
+
 	// Test aliases are preserved
 	if len(foundCmd.Aliases) != 3 {
 		t.Errorf("Expected 3 aliases, got %d", len(foundCmd.Aliases))
 	}
-	
+
 	// Test flags are preserved
 	if !foundCmd.Flags().HasFlags() {
 		t.Error("New command should have flags")
@@ -444,7 +446,7 @@ func TestNewCommandGlobalVariables(t *testing.T) {
 func TestNewCommandArgsAcceptance(t *testing.T) {
 	// Test that command accepts the expected arguments
 	// New command should accept 0 or 1 argument (branch name)
-	
+
 	// Test with no args (should be valid)
 	if newCmd.Args != nil {
 		err := newCmd.Args(newCmd, []string{})
@@ -472,12 +474,12 @@ func BenchmarkNewCommandCreation(b *testing.B) {
 			Long:    "Create a new git worktree interactively or with specified parameters.",
 			Aliases: []string{"add", "create", "n"},
 		}
-		
+
 		var testCreateBranch bool
 		var testWorktreePath string
 		cmd.Flags().BoolVarP(&testCreateBranch, "create-branch", "b", false, "Create a new branch")
 		cmd.Flags().StringVarP(&testWorktreePath, "path", "p", "", "Path for the new worktree")
-		
+
 		_ = cmd
 	}
 }
@@ -500,7 +502,10 @@ func BenchmarkNewCommandHelp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
-		testCmd.Execute()
+		if err := testCmd.Execute(); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Command execution error: %v", err)
+		}
 	}
 }
 
@@ -508,7 +513,7 @@ func BenchmarkNewCommandFlagParsing(b *testing.B) {
 	testCmd := &cobra.Command{
 		Use: "new [branch]",
 	}
-	
+
 	var testCreateBranch bool
 	var testWorktreePath string
 	testCmd.Flags().BoolVarP(&testCreateBranch, "create-branch", "b", false, "Create a new branch")
@@ -516,6 +521,9 @@ func BenchmarkNewCommandFlagParsing(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		testCmd.ParseFlags([]string{"-b", "-p", "/test/path"})
+		if err := testCmd.ParseFlags([]string{"-b", "-p", "/test/path"}); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Flag parsing error: %v", err)
+		}
 	}
 }

@@ -51,12 +51,22 @@ func TestConfigInitCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	// Mock home directory
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	os.Setenv("HOME", tmpDir)
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+	if err := os.Setenv("HOME", tmpDir); err != nil {
+		t.Fatalf("Failed to set HOME: %v", err)
+	}
 
 	// Create test command
 	testCmd := &cobra.Command{
@@ -155,12 +165,22 @@ aliases:
 			if err != nil {
 				t.Fatalf("Failed to create temp dir: %v", err)
 			}
-			defer os.RemoveAll(tmpDir)
+			defer func() {
+				if err := os.RemoveAll(tmpDir); err != nil {
+					t.Logf("Failed to remove temp dir: %v", err)
+				}
+			}()
 
 			// Mock home directory
 			originalHome := os.Getenv("HOME")
-			defer os.Setenv("HOME", originalHome)
-			os.Setenv("HOME", tmpDir)
+			defer func() {
+				if err := os.Setenv("HOME", originalHome); err != nil {
+					t.Logf("Failed to restore HOME: %v", err)
+				}
+			}()
+			if err := os.Setenv("HOME", tmpDir); err != nil {
+				t.Fatalf("Failed to set HOME: %v", err)
+			}
 
 			// Setup config
 			if err := tt.setupConfig(tmpDir); err != nil {
@@ -236,7 +256,11 @@ func TestConfigCommandWithErrors(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
 		}
-		defer os.RemoveAll(tmpDir)
+		defer func() {
+			if err := os.RemoveAll(tmpDir); err != nil {
+				t.Logf("Failed to remove temp dir: %v", err)
+			}
+		}()
 
 		readOnlyDir := filepath.Join(tmpDir, "readonly")
 		if err := os.MkdirAll(readOnlyDir, 0555); err != nil {
@@ -244,8 +268,14 @@ func TestConfigCommandWithErrors(t *testing.T) {
 		}
 
 		originalHome := os.Getenv("HOME")
-		defer os.Setenv("HOME", originalHome)
-		os.Setenv("HOME", readOnlyDir)
+		defer func() {
+			if err := os.Setenv("HOME", originalHome); err != nil {
+				t.Logf("Failed to restore HOME: %v", err)
+			}
+		}()
+		if err := os.Setenv("HOME", readOnlyDir); err != nil {
+			t.Fatalf("Failed to set HOME: %v", err)
+		}
 
 		// Create test command
 		testCmd := &cobra.Command{
@@ -339,12 +369,22 @@ func BenchmarkConfigShow(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			b.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	// Mock home directory
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	os.Setenv("HOME", tmpDir)
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			b.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+	if err := os.Setenv("HOME", tmpDir); err != nil {
+		b.Fatalf("Failed to set HOME: %v", err)
+	}
 
 	// Create test command
 	testCmd := &cobra.Command{
@@ -365,6 +405,9 @@ func BenchmarkConfigShow(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		testCmd.SetArgs([]string{"show"})
-		testCmd.Execute()
+		if err := testCmd.Execute(); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Command execution error: %v", err)
+		}
 	}
 }

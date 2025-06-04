@@ -127,7 +127,7 @@ func TestListCommandHelp(t *testing.T) {
 	}
 
 	output := buf.String()
-	
+
 	// Basic check that help was generated
 	if len(output) == 0 {
 		t.Error("Help output should not be empty")
@@ -137,7 +137,7 @@ func TestListCommandHelp(t *testing.T) {
 func TestListCommandByAlias(t *testing.T) {
 	// Test that aliases work correctly by checking they're properly set
 	aliases := listCmd.Aliases
-	
+
 	expectedAliases := []string{"ls", "l"}
 	if len(aliases) != len(expectedAliases) {
 		t.Errorf("Expected %d aliases, got %d", len(expectedAliases), len(aliases))
@@ -160,7 +160,7 @@ func TestListCommandFlags(t *testing.T) {
 	// Test that list command doesn't have unexpected flags
 	// List command should be simple with no additional flags
 	flags := listCmd.Flags()
-	
+
 	// Should only have inherited flags from cobra (help, etc.)
 	if flags.HasFlags() {
 		// Check if there are any non-inherited flags
@@ -215,7 +215,7 @@ func TestListCommandPath(t *testing.T) {
 	// Test command path construction
 	expectedPath := "yosegi list"
 	actualPath := listCmd.CommandPath()
-	
+
 	if actualPath != expectedPath {
 		t.Errorf("Expected command path '%s', got '%s'", expectedPath, actualPath)
 	}
@@ -224,12 +224,12 @@ func TestListCommandPath(t *testing.T) {
 func TestListCommandUsage(t *testing.T) {
 	// Test usage string generation
 	usage := listCmd.UsageString()
-	
+
 	// Basic check that usage string is generated
 	if len(usage) == 0 {
 		t.Error("Usage string should not be empty")
 	}
-	
+
 	// Should contain the command name
 	if !strings.Contains(usage, "list") {
 		t.Error("Usage should contain command name 'list'")
@@ -279,12 +279,12 @@ func TestListCommandCompletion(t *testing.T) {
 	if listCmd.ValidArgsFunction != nil {
 		// If completion is set up, test it
 		completions, directive := listCmd.ValidArgsFunction(listCmd, []string{}, "")
-		
+
 		// List command shouldn't complete arguments since it takes none
 		if len(completions) != 0 {
 			t.Errorf("List command should not provide argument completions, got %d", len(completions))
 		}
-		
+
 		// Directive should indicate no file completion
 		if directive != cobra.ShellCompDirectiveNoFileComp {
 			t.Errorf("Expected ShellCompDirectiveNoFileComp, got %d", directive)
@@ -302,7 +302,7 @@ func TestListCommandGroups(t *testing.T) {
 
 func TestListCommandAnnotations(t *testing.T) {
 	// Test command annotations (if any)
-	if listCmd.Annotations != nil && len(listCmd.Annotations) > 0 {
+	if len(listCmd.Annotations) > 0 {
 		t.Logf("List command has %d annotations", len(listCmd.Annotations))
 		for key, value := range listCmd.Annotations {
 			t.Logf("Annotation %s: %s", key, value)
@@ -315,7 +315,7 @@ func TestListCommandIntegration(t *testing.T) {
 	// Verify the command is properly integrated
 	found := false
 	var foundCmd *cobra.Command
-	
+
 	for _, cmd := range rootCmd.Commands() {
 		if cmd.Use == "list" {
 			found = true
@@ -323,16 +323,16 @@ func TestListCommandIntegration(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Fatal("List command not found in root command")
 	}
-	
+
 	// Test that it's the same command
 	if foundCmd != listCmd {
 		t.Error("Found command is not the same as listCmd")
 	}
-	
+
 	// Test aliases are preserved
 	if len(foundCmd.Aliases) != 2 {
 		t.Errorf("Expected 2 aliases, got %d", len(foundCmd.Aliases))
@@ -345,7 +345,7 @@ func BenchmarkListCommandCreation(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		cmd := &cobra.Command{
 			Use:     "list",
-			Short:   "List all git worktrees", 
+			Short:   "List all git worktrees",
 			Long:    "Display an interactive list of all git worktrees in the repository.",
 			Aliases: []string{"ls", "l"},
 		}
@@ -369,6 +369,9 @@ func BenchmarkListCommandHelp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
-		testCmd.Execute()
+		if err := testCmd.Execute(); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Command execution error: %v", err)
+		}
 	}
 }

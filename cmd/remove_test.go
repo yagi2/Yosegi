@@ -116,7 +116,7 @@ func TestRemoveCommandFlags(t *testing.T) {
 
 func TestRemoveCommandFlagValues(t *testing.T) {
 	// Test that flag variables are properly connected
-	
+
 	// Reset to known state
 	forceRemove = false
 
@@ -171,7 +171,7 @@ func TestRemoveCommandHelp(t *testing.T) {
 	}
 
 	output := buf.String()
-	
+
 	// Basic check that help was generated
 	if len(output) == 0 {
 		t.Error("Help output should not be empty")
@@ -181,7 +181,7 @@ func TestRemoveCommandHelp(t *testing.T) {
 func TestRemoveCommandByAlias(t *testing.T) {
 	// Test that aliases work correctly by checking they're properly set
 	aliases := removeCmd.Aliases
-	
+
 	expectedAliases := []string{"rm", "delete", "del", "r"}
 	if len(aliases) != len(expectedAliases) {
 		t.Errorf("Expected %d aliases, got %d", len(expectedAliases), len(aliases))
@@ -242,7 +242,7 @@ func TestRemoveCommandPath(t *testing.T) {
 	// Test command path construction
 	expectedPath := "yosegi remove"
 	actualPath := removeCmd.CommandPath()
-	
+
 	if actualPath != expectedPath {
 		t.Errorf("Expected command path '%s', got '%s'", expectedPath, actualPath)
 	}
@@ -251,12 +251,12 @@ func TestRemoveCommandPath(t *testing.T) {
 func TestRemoveCommandUsage(t *testing.T) {
 	// Test usage string generation
 	usage := removeCmd.UsageString()
-	
+
 	// Basic check that usage string is generated
 	if len(usage) == 0 {
 		t.Error("Usage string should not be empty")
 	}
-	
+
 	// Should contain the command name
 	if !strings.Contains(usage, "remove") {
 		t.Error("Usage should contain command name 'remove'")
@@ -268,13 +268,15 @@ func TestRemoveCommandFlagShorthands(t *testing.T) {
 	testCmd := &cobra.Command{
 		Use: "remove",
 	}
-	
+
 	var testForceRemove bool
 	testCmd.Flags().BoolVarP(&testForceRemove, "force", "f", false, "Force removal even if worktree is dirty")
 
 	// Test short flag parsing
 	testCmd.SetArgs([]string{"-f"})
-	testCmd.ParseFlags([]string{"-f"})
+	if err := testCmd.ParseFlags([]string{"-f"}); err != nil {
+		t.Fatalf("Failed to parse flags: %v", err)
+	}
 
 	if !testForceRemove {
 		t.Error("Short flag -f should set force to true")
@@ -301,12 +303,12 @@ func TestRemoveCommandCompletion(t *testing.T) {
 	if removeCmd.ValidArgsFunction != nil {
 		// If completion is set up, test it
 		completions, directive := removeCmd.ValidArgsFunction(removeCmd, []string{}, "")
-		
+
 		// Remove command shouldn't complete arguments since it's interactive
 		if len(completions) != 0 {
 			t.Errorf("Remove command should not provide argument completions, got %d", len(completions))
 		}
-		
+
 		// Directive should indicate no file completion
 		if directive != cobra.ShellCompDirectiveNoFileComp {
 			t.Errorf("Expected ShellCompDirectiveNoFileComp, got %d", directive)
@@ -324,7 +326,7 @@ func TestRemoveCommandGroups(t *testing.T) {
 
 func TestRemoveCommandAnnotations(t *testing.T) {
 	// Test command annotations (if any)
-	if removeCmd.Annotations != nil && len(removeCmd.Annotations) > 0 {
+	if len(removeCmd.Annotations) > 0 {
 		t.Logf("Remove command has %d annotations", len(removeCmd.Annotations))
 		for key, value := range removeCmd.Annotations {
 			t.Logf("Annotation %s: %s", key, value)
@@ -337,7 +339,7 @@ func TestRemoveCommandIntegration(t *testing.T) {
 	// Verify the command is properly integrated
 	found := false
 	var foundCmd *cobra.Command
-	
+
 	for _, cmd := range rootCmd.Commands() {
 		if cmd.Use == "remove" {
 			found = true
@@ -345,21 +347,21 @@ func TestRemoveCommandIntegration(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Fatal("Remove command not found in root command")
 	}
-	
+
 	// Test that it's the same command
 	if foundCmd != removeCmd {
 		t.Error("Found command is not the same as removeCmd")
 	}
-	
+
 	// Test aliases are preserved
 	if len(foundCmd.Aliases) != 4 {
 		t.Errorf("Expected 4 aliases, got %d", len(foundCmd.Aliases))
 	}
-	
+
 	// Test flags are preserved
 	if !foundCmd.Flags().HasFlags() {
 		t.Error("Remove command should have flags")
@@ -413,7 +415,7 @@ func TestRemoveCommandGlobalVariables(t *testing.T) {
 func TestRemoveCommandArgsAcceptance(t *testing.T) {
 	// Test that command accepts the expected arguments
 	// Remove command should accept no arguments (interactive mode)
-	
+
 	// Test with no args (should be valid)
 	if removeCmd.Args != nil {
 		err := removeCmd.Args(removeCmd, []string{})
@@ -456,30 +458,30 @@ func TestRemoveCommandFlagDefaults(t *testing.T) {
 func TestRemoveCommandFlagBinding(t *testing.T) {
 	// Test that flags are properly bound to variables
 	originalForceRemove := forceRemove
-	
+
 	// Reset to known state
 	forceRemove = false
-	
+
 	// Set flag and check variable
 	err := removeCmd.Flags().Set("force", "true")
 	if err != nil {
 		t.Fatalf("Failed to set force flag: %v", err)
 	}
-	
+
 	if !forceRemove {
 		t.Error("forceRemove variable should be updated when flag is set")
 	}
-	
+
 	// Reset flag and check variable
 	err = removeCmd.Flags().Set("force", "false")
 	if err != nil {
 		t.Fatalf("Failed to reset force flag: %v", err)
 	}
-	
+
 	if forceRemove {
 		t.Error("forceRemove variable should be updated when flag is reset")
 	}
-	
+
 	// Restore original value
 	forceRemove = originalForceRemove
 }
@@ -494,10 +496,10 @@ func BenchmarkRemoveCommandCreation(b *testing.B) {
 			Long:    "Interactively select and remove a git worktree.",
 			Aliases: []string{"rm", "delete", "del", "r"},
 		}
-		
+
 		var testForceRemove bool
 		cmd.Flags().BoolVarP(&testForceRemove, "force", "f", false, "Force removal even if worktree is dirty")
-		
+
 		_ = cmd
 	}
 }
@@ -519,7 +521,10 @@ func BenchmarkRemoveCommandHelp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
-		testCmd.Execute()
+		if err := testCmd.Execute(); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Command execution error: %v", err)
+		}
 	}
 }
 
@@ -527,12 +532,15 @@ func BenchmarkRemoveCommandFlagParsing(b *testing.B) {
 	testCmd := &cobra.Command{
 		Use: "remove",
 	}
-	
+
 	var testForceRemove bool
 	testCmd.Flags().BoolVarP(&testForceRemove, "force", "f", false, "Force removal even if worktree is dirty")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		testCmd.ParseFlags([]string{"-f"})
+		if err := testCmd.ParseFlags([]string{"-f"}); err != nil {
+			// Log error but continue benchmark
+			b.Logf("Flag parsing error: %v", err)
+		}
 	}
 }

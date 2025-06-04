@@ -13,6 +13,7 @@ func TestDefaultConfig(t *testing.T) {
 
 	if cfg == nil {
 		t.Errorf("defaultConfig() should not return nil")
+		return // Exit early if cfg is nil to avoid nil pointer dereference
 	}
 
 	// Test default values
@@ -86,13 +87,21 @@ func TestGetConfigPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	// Test local config detection
 	t.Run("Local config exists", func(t *testing.T) {
@@ -138,8 +147,14 @@ func TestGetConfigPath(t *testing.T) {
 		if err := os.MkdirAll(mockHome, 0755); err != nil {
 			t.Fatalf("Failed to create mock home: %v", err)
 		}
-		os.Setenv("HOME", mockHome)
-		defer os.Setenv("HOME", originalHome)
+		if err := os.Setenv("HOME", mockHome); err != nil {
+			t.Fatalf("Failed to set HOME: %v", err)
+		}
+		defer func() {
+			if err := os.Setenv("HOME", originalHome); err != nil {
+				t.Logf("Failed to restore HOME: %v", err)
+			}
+		}()
 
 		configPath, err := getConfigPath()
 		if err != nil {
@@ -275,13 +290,21 @@ git:
 			if err != nil {
 				t.Fatalf("Failed to create temp dir: %v", err)
 			}
-			defer os.RemoveAll(tmpDir)
+			defer func() {
+				if err := os.RemoveAll(tmpDir); err != nil {
+					t.Logf("Failed to remove temp dir: %v", err)
+				}
+			}()
 
 			originalDir, err := os.Getwd()
 			if err != nil {
 				t.Fatalf("Failed to get current directory: %v", err)
 			}
-			defer os.Chdir(originalDir)
+			defer func() {
+				if err := os.Chdir(originalDir); err != nil {
+					t.Logf("Failed to restore directory: %v", err)
+				}
+			}()
 
 			if err := os.Chdir(tmpDir); err != nil {
 				t.Fatalf("Failed to change directory: %v", err)
@@ -319,13 +342,21 @@ func TestSaveConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
@@ -337,8 +368,14 @@ func TestSaveConfig(t *testing.T) {
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
-	os.Setenv("HOME", mockHome)
-	defer os.Setenv("HOME", originalHome)
+	if err := os.Setenv("HOME", mockHome); err != nil {
+		t.Fatalf("Failed to set HOME: %v", err)
+	}
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
 
 	// Create a custom config
 	cfg := &Config{
@@ -396,13 +433,21 @@ func TestInitConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
@@ -414,8 +459,14 @@ func TestInitConfig(t *testing.T) {
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
-	os.Setenv("HOME", mockHome)
-	defer os.Setenv("HOME", originalHome)
+	if err := os.Setenv("HOME", mockHome); err != nil {
+		t.Fatalf("Failed to set HOME: %v", err)
+	}
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
 
 	// Initialize config
 	if err := InitConfig(); err != nil {
@@ -490,7 +541,11 @@ func TestConfigEdgeCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
 		}
-		defer os.RemoveAll(tmpDir)
+		defer func() {
+			if err := os.RemoveAll(tmpDir); err != nil {
+				t.Logf("Failed to remove temp dir: %v", err)
+			}
+		}()
 
 		// Create a read-only directory
 		readOnlyDir := filepath.Join(tmpDir, "readonly")
@@ -499,8 +554,14 @@ func TestConfigEdgeCases(t *testing.T) {
 		}
 
 		originalHome := os.Getenv("HOME")
-		os.Setenv("HOME", readOnlyDir)
-		defer os.Setenv("HOME", originalHome)
+		if err := os.Setenv("HOME", readOnlyDir); err != nil {
+			t.Fatalf("Failed to set HOME: %v", err)
+		}
+		defer func() {
+			if err := os.Setenv("HOME", originalHome); err != nil {
+				t.Logf("Failed to restore HOME: %v", err)
+			}
+		}()
 
 		cfg := defaultConfig()
 		err = Save(cfg)
@@ -518,13 +579,21 @@ func TestConfigEdgeCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
 		}
-		defer os.RemoveAll(tmpDir)
+		defer func() {
+			if err := os.RemoveAll(tmpDir); err != nil {
+				t.Logf("Failed to remove temp dir: %v", err)
+			}
+		}()
 
 		originalDir, err := os.Getwd()
 		if err != nil {
 			t.Fatalf("Failed to get current directory: %v", err)
 		}
-		defer os.Chdir(originalDir)
+		defer func() {
+			if err := os.Chdir(originalDir); err != nil {
+				t.Logf("Failed to restore directory: %v", err)
+			}
+		}()
 
 		if err := os.Chdir(tmpDir); err != nil {
 			t.Fatalf("Failed to change directory: %v", err)
@@ -538,7 +607,11 @@ func TestConfigEdgeCases(t *testing.T) {
 		if err := os.Chmod(configPath, 0000); err != nil {
 			t.Fatalf("Failed to change file permissions: %v", err)
 		}
-		defer os.Chmod(configPath, 0644) // Cleanup
+		defer func() {
+			if err := os.Chmod(configPath, 0644); err != nil {
+				t.Logf("Failed to restore file permissions: %v", err)
+			}
+		}() // Cleanup
 
 		// Should fallback to default config
 		cfg, err := Load()
@@ -557,13 +630,21 @@ func BenchmarkLoad(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			b.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	originalDir, err := os.Getwd()
 	if err != nil {
 		b.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			b.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(tmpDir); err != nil {
 		b.Fatalf("Failed to change directory: %v", err)
@@ -596,39 +677,53 @@ ui:
 func TestGetConfigPathErrors(t *testing.T) {
 	// Test getConfigPath when HOME is not set
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	
-	os.Unsetenv("HOME")
-	
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+
+	if err := os.Unsetenv("HOME"); err != nil {
+		t.Logf("Failed to unset HOME: %v", err)
+	}
+
 	// Create local config file to test local config path
 	tmpDir, err := os.MkdirTemp("", "yosegi-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
-	
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
+
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
-	
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
+
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	
+
 	// Create local config file
 	localConfig := ".yosegi.yaml"
 	if err := os.WriteFile(localConfig, []byte("test"), 0644); err != nil {
 		t.Fatalf("Failed to create local config: %v", err)
 	}
-	
+
 	// Should return local config path
 	path, err := getConfigPath()
 	if err != nil {
 		t.Errorf("Expected no error with local config, got: %v", err)
 	}
-	
+
 	if !strings.HasSuffix(path, localConfig) {
 		t.Errorf("Expected path to end with %s, got: %s", localConfig, path)
 	}
@@ -637,11 +732,17 @@ func TestGetConfigPathErrors(t *testing.T) {
 func TestSaveErrors(t *testing.T) {
 	// Test Save with invalid config path
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+
 	// Set HOME to an invalid path
-	os.Setenv("HOME", "/dev/null/invalid")
-	
+	if err := os.Setenv("HOME", "/dev/null/invalid"); err != nil {
+		t.Fatalf("Failed to set HOME: %v", err)
+	}
+
 	config := defaultConfig()
 	err := Save(config)
 	if err == nil {
@@ -655,18 +756,26 @@ func TestLoadLocalConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
-	
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			t.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
+
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
-	
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
+
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	
+
 	// Create local config
 	localConfig := `
 default_worktree_path: "./worktrees"
@@ -678,22 +787,21 @@ theme:
 	if err := os.WriteFile(".yosegi.yaml", []byte(localConfig), 0644); err != nil {
 		t.Fatalf("Failed to create local config: %v", err)
 	}
-	
+
 	config, err := Load()
 	if err != nil {
 		t.Errorf("Failed to load local config: %v", err)
 	}
-	
+
 	if config.DefaultWorktreePath != "./worktrees" {
 		t.Errorf("Expected default worktree path './worktrees', got '%s'", config.DefaultWorktreePath)
 	}
-	
+
 	// Note: Theme is at the root level of Config, not under UI
 	if config.Theme.Primary != "#00FF00" {
 		t.Errorf("Expected primary color '#00FF00', got '%s'", config.Theme.Primary)
 	}
 }
-
 
 func BenchmarkLoadConfig(b *testing.B) {
 	// Create a test config file
@@ -701,13 +809,17 @@ func BenchmarkLoadConfig(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
-	
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			b.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
+
 	configDir := filepath.Join(tmpDir, ".config", "yosegi")
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		b.Fatalf("Failed to create config dir: %v", err)
 	}
-	
+
 	configContent := `
 default_worktree_path: "../"
 git:
@@ -726,11 +838,17 @@ aliases:
 	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
 		b.Fatalf("Failed to create config file: %v", err)
 	}
-	
+
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	os.Setenv("HOME", tmpDir)
-	
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			b.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+	if err := os.Setenv("HOME", tmpDir); err != nil {
+		b.Fatalf("Failed to set HOME: %v", err)
+	}
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := Load()
@@ -745,19 +863,29 @@ func BenchmarkSaveConfig(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
-	
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			b.Logf("Failed to remove temp dir: %v", err)
+		}
+	}()
+
 	configDir := filepath.Join(tmpDir, ".config", "yosegi")
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		b.Fatalf("Failed to create config dir: %v", err)
 	}
-	
+
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
-	os.Setenv("HOME", tmpDir)
-	
+	defer func() {
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			b.Logf("Failed to restore HOME: %v", err)
+		}
+	}()
+	if err := os.Setenv("HOME", tmpDir); err != nil {
+		b.Fatalf("Failed to set HOME: %v", err)
+	}
+
 	config := defaultConfig()
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := Save(config)

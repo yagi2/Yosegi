@@ -10,9 +10,9 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all git worktrees",
-	Long:  "Display an interactive list of all git worktrees in the repository.",
+	Use:     "list",
+	Short:   "List all git worktrees",
+	Long:    "Display an interactive list of all git worktrees in the repository.",
 	Aliases: []string{"ls", "l"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		manager, err := git.NewManager()
@@ -28,7 +28,7 @@ var listCmd = &cobra.Command{
 		// Interactive mode
 		model := ui.NewSelector(worktrees, "Git Worktrees", "view", false)
 		program := tea.NewProgram(model)
-		
+
 		finalModel, err := program.Run()
 		if err != nil {
 			return fmt.Errorf("failed to run interactive interface: %w", err)

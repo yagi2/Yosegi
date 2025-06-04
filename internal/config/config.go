@@ -1,9 +1,9 @@
 package config
 
 import (
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
-	"gopkg.in/yaml.v3"
 )
 
 // Config represents the application configuration
@@ -119,7 +119,7 @@ func Load() (*Config, error) {
 	if config.DefaultWorktreePath == "" {
 		config.DefaultWorktreePath = defaultCfg.DefaultWorktreePath
 	}
-	
+
 	// Merge theme fields individually
 	if config.Theme.Primary == "" {
 		config.Theme.Primary = defaultCfg.Theme.Primary
@@ -142,7 +142,7 @@ func Load() (*Config, error) {
 	if config.Theme.Text == "" {
 		config.Theme.Text = defaultCfg.Theme.Text
 	}
-	
+
 	// Merge git config fields
 	if config.Git.DefaultRemote == "" {
 		config.Git.DefaultRemote = defaultCfg.Git.DefaultRemote
@@ -150,7 +150,7 @@ func Load() (*Config, error) {
 	if config.Git.ExcludePatterns == nil {
 		config.Git.ExcludePatterns = defaultCfg.Git.ExcludePatterns
 	}
-	
+
 	// Merge UI config fields (need to check if they were actually set)
 	// For boolean fields, we need to check if they were explicitly set
 	// This is a limitation of YAML unmarshaling - we can't distinguish between
@@ -160,7 +160,7 @@ func Load() (*Config, error) {
 	}
 	// Note: ShowIcons and ConfirmDelete will use Go's zero values (false)
 	// if not explicitly set in config. This is expected behavior.
-	
+
 	if config.Aliases == nil {
 		config.Aliases = defaultCfg.Aliases
 	}

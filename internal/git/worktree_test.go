@@ -23,10 +23,12 @@ func TestFindGitRoot(t *testing.T) {
 				}
 				gitDir := filepath.Join(tmpDir, ".git")
 				if err := os.Mkdir(gitDir, 0755); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
-				cleanup := func() { os.RemoveAll(tmpDir) }
+				cleanup := func() {
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+				}
 				return tmpDir, cleanup, nil
 			},
 			expectError: false,
@@ -41,24 +43,26 @@ func TestFindGitRoot(t *testing.T) {
 				// Create a main repo directory
 				mainRepoDir := filepath.Join(tmpDir, "main-repo")
 				if err := os.MkdirAll(filepath.Join(mainRepoDir, ".git"), 0755); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
-				
+
 				// Create worktree directory
 				worktreeDir := filepath.Join(tmpDir, "worktree")
 				if err := os.MkdirAll(worktreeDir, 0755); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
-				
+
 				gitFile := filepath.Join(worktreeDir, ".git")
 				gitContent := fmt.Sprintf("gitdir: %s/.git/worktrees/test", mainRepoDir)
 				if err := os.WriteFile(gitFile, []byte(gitContent), 0644); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
-				cleanup := func() { os.RemoveAll(tmpDir) }
+				cleanup := func() {
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+				}
 				return worktreeDir, cleanup, nil
 			},
 			expectError: false,
@@ -70,7 +74,9 @@ func TestFindGitRoot(t *testing.T) {
 				if err != nil {
 					return "", nil, err
 				}
-				cleanup := func() { os.RemoveAll(tmpDir) }
+				cleanup := func() {
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+				}
 				return tmpDir, cleanup, nil
 			},
 			expectError: true,
@@ -84,15 +90,17 @@ func TestFindGitRoot(t *testing.T) {
 				}
 				gitDir := filepath.Join(tmpDir, ".git")
 				if err := os.Mkdir(gitDir, 0755); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
 				nestedDir := filepath.Join(tmpDir, "subdir", "nested")
 				if err := os.MkdirAll(nestedDir, 0755); err != nil {
-					os.RemoveAll(tmpDir)
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 					return "", nil, err
 				}
-				cleanup := func() { os.RemoveAll(tmpDir) }
+				cleanup := func() {
+					_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+				}
 				return nestedDir, cleanup, nil
 			},
 			expectError: false,
@@ -292,13 +300,19 @@ func TestNewManager(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+	}()
 
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	// Change to temp directory
 	if err := os.Chdir(tmpDir); err != nil {
@@ -319,7 +333,9 @@ func TestManagerGetCurrentPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+	}()
 
 	// Create a mock git repository
 	gitDir := filepath.Join(tmpDir, ".git")
@@ -331,7 +347,11 @@ func TestManagerGetCurrentPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	// Change to temp directory
 	if err := os.Chdir(tmpDir); err != nil {
@@ -367,12 +387,12 @@ func createTestGitRepo(t *testing.T) (string, func()) {
 
 	gitDir := filepath.Join(tmpDir, ".git")
 	if err := os.Mkdir(gitDir, 0755); err != nil {
-		os.RemoveAll(tmpDir)
+		_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 		t.Fatalf("Failed to create .git directory: %v", err)
 	}
 
 	cleanup := func() {
-		os.RemoveAll(tmpDir)
+		_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
 	}
 
 	return tmpDir, cleanup
@@ -390,7 +410,11 @@ func TestManagerInterface(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
-	defer os.Chdir(originalDir)
+	defer func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Logf("Failed to restore directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(repoDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
@@ -412,7 +436,9 @@ func BenchmarkFindGitRoot(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir) // Ignore cleanup errors
+	}()
 
 	gitDir := filepath.Join(tmpDir, ".git")
 	if err := os.Mkdir(gitDir, 0755); err != nil {
@@ -465,12 +491,12 @@ branch refs/heads/hotfix/urgent
 func TestManagerListErrors(t *testing.T) {
 	// Test List method error handling
 	m := &manager{repoRoot: "/nonexistent"}
-	
+
 	_, err := m.List()
 	if err == nil {
 		t.Error("Expected error for non-existent repository")
 	}
-	
+
 	if !strings.Contains(err.Error(), "failed to list worktrees") {
 		t.Errorf("Expected specific error message, got: %v", err)
 	}
@@ -479,12 +505,12 @@ func TestManagerListErrors(t *testing.T) {
 func TestManagerAddErrors(t *testing.T) {
 	// Test Add method error handling
 	m := &manager{repoRoot: "/nonexistent"}
-	
+
 	err := m.Add("/tmp/test", "test-branch", false)
 	if err == nil {
 		t.Error("Expected error for non-existent repository")
 	}
-	
+
 	if !strings.Contains(err.Error(), "failed to add worktree") {
 		t.Errorf("Expected specific error message, got: %v", err)
 	}
@@ -493,12 +519,12 @@ func TestManagerAddErrors(t *testing.T) {
 func TestManagerRemoveErrors(t *testing.T) {
 	// Test Remove method error handling
 	m := &manager{repoRoot: "/nonexistent"}
-	
+
 	err := m.Remove("/tmp/test", false)
 	if err == nil {
 		t.Error("Expected error for non-existent repository")
 	}
-	
+
 	if !strings.Contains(err.Error(), "failed to remove worktree") {
 		t.Errorf("Expected specific error message, got: %v", err)
 	}
@@ -507,12 +533,12 @@ func TestManagerRemoveErrors(t *testing.T) {
 func TestManagerRemoveWithForce(t *testing.T) {
 	// Test Remove method with force flag
 	m := &manager{repoRoot: "/nonexistent"}
-	
+
 	err := m.Remove("/tmp/test", true)
 	if err == nil {
 		t.Error("Expected error for non-existent repository")
 	}
-	
+
 	// Error should still occur, but we test that force flag is handled
 	if !strings.Contains(err.Error(), "failed to remove worktree") {
 		t.Errorf("Expected specific error message, got: %v", err)
@@ -522,12 +548,12 @@ func TestManagerRemoveWithForce(t *testing.T) {
 func TestManagerAddWithCreateBranch(t *testing.T) {
 	// Test Add method with createBranch flag
 	m := &manager{repoRoot: "/nonexistent"}
-	
+
 	err := m.Add("/tmp/test", "new-branch", true)
 	if err == nil {
 		t.Error("Expected error for non-existent repository")
 	}
-	
+
 	if !strings.Contains(err.Error(), "failed to add worktree") {
 		t.Errorf("Expected specific error message, got: %v", err)
 	}
@@ -535,23 +561,22 @@ func TestManagerAddWithCreateBranch(t *testing.T) {
 
 func TestManagerMethodSignatures(t *testing.T) {
 	// Test that all manager methods have correct signatures for interface compliance
-	
-	var m Manager
-	m = &manager{repoRoot: "/test"}
-	
+
+	m := Manager(&manager{repoRoot: "/test"})
+
 	// Test List signature: () ([]Worktree, error)
 	worktrees, err := m.List()
 	_ = worktrees
 	_ = err
-	
+
 	// Test Add signature: (string, string, bool) error
 	err = m.Add("path", "branch", true)
 	_ = err
-	
+
 	// Test Remove signature: (string, bool) error
 	err = m.Remove("path", false)
 	_ = err
-	
+
 	// Test GetCurrentPath signature: () (string, error)
 	path, err := m.GetCurrentPath()
 	_ = path
@@ -561,13 +586,13 @@ func TestManagerMethodSignatures(t *testing.T) {
 func TestManagerPathHandling(t *testing.T) {
 	// Test path handling in manager methods
 	m := &manager{repoRoot: "/test/repo"}
-	
+
 	// Test empty path handling
 	err := m.Add("", "branch", false)
 	if err == nil {
 		t.Log("Add with empty path handled (expected to fail)")
 	}
-	
+
 	err = m.Remove("", false)
 	if err == nil {
 		t.Log("Remove with empty path handled (expected to fail)")
@@ -577,13 +602,13 @@ func TestManagerPathHandling(t *testing.T) {
 func TestManagerBranchHandling(t *testing.T) {
 	// Test branch name handling in Add method
 	m := &manager{repoRoot: "/test/repo"}
-	
+
 	// Test empty branch name
 	err := m.Add("/tmp/test", "", false)
 	if err == nil {
 		t.Log("Add with empty branch handled (expected to fail)")
 	}
-	
+
 	// Test branch name with spaces
 	err = m.Add("/tmp/test", "branch with spaces", false)
 	if err == nil {

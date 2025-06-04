@@ -14,9 +14,9 @@ var (
 )
 
 var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "Remove a git worktree",
-	Long:  "Interactively select and remove a git worktree.",
+	Use:     "remove",
+	Short:   "Remove a git worktree",
+	Long:    "Interactively select and remove a git worktree.",
 	Aliases: []string{"rm", "delete", "del", "r"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		manager, err := git.NewManager()
@@ -50,7 +50,7 @@ var removeCmd = &cobra.Command{
 		// Interactive mode
 		model := ui.NewSelector(removableWorktrees, "Remove Worktree", "remove", true)
 		program := tea.NewProgram(model)
-		
+
 		finalModel, err := program.Run()
 		if err != nil {
 			return fmt.Errorf("failed to run interactive interface: %w", err)
@@ -69,7 +69,7 @@ var removeCmd = &cobra.Command{
 				[]string{""},
 			)
 			program := tea.NewProgram(confirmModel)
-			
+
 			finalConfirmModel, err := program.Run()
 			if err != nil {
 				return fmt.Errorf("failed to run confirmation interface: %w", err)

@@ -316,7 +316,7 @@ func TestStylesProperties(t *testing.T) {
 			// Test that the style can render (basic check for non-empty style)
 			testRendered := tt.style.Render("test")
 			if testRendered == "test" {
-				// If rendered output is exactly the same as input, 
+				// If rendered output is exactly the same as input,
 				// the style might not have any properties set
 				t.Logf("Style %s may not have properties set (output unchanged)", tt.name)
 			}
@@ -436,7 +436,7 @@ func BenchmarkGetStatusIcon(b *testing.B) {
 
 func BenchmarkStyleRender(b *testing.B) {
 	text := "Sample text for benchmarking style rendering"
-	
+
 	b.Run("TitleStyle", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			TitleStyle.Render(text)

@@ -18,9 +18,9 @@ var (
 )
 
 var newCmd = &cobra.Command{
-	Use:   "new [branch]",
-	Short: "Create a new git worktree",
-	Long:  "Create a new git worktree interactively or with specified parameters.",
+	Use:     "new [branch]",
+	Short:   "Create a new git worktree",
+	Long:    "Create a new git worktree interactively or with specified parameters.",
 	Aliases: []string{"add", "create", "n"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Load configuration
@@ -67,7 +67,7 @@ var newCmd = &cobra.Command{
 
 			model := ui.NewInput("Create New Worktree", prompts, defaults)
 			program := tea.NewProgram(model)
-			
+
 			finalModel, err := program.Run()
 			if err != nil {
 				return fmt.Errorf("failed to run interactive interface: %w", err)
@@ -81,12 +81,12 @@ var newCmd = &cobra.Command{
 
 			values := result.Values
 			idx := 0
-			
+
 			if branch == "" {
 				branch = strings.TrimSpace(values[idx])
 				idx++
 			}
-			
+
 			if worktreePath == "" {
 				path = strings.TrimSpace(values[idx])
 			}
@@ -115,7 +115,7 @@ var newCmd = &cobra.Command{
 		}
 
 		fmt.Printf("✅ Successfully created worktree '%s' at '%s'\n", branch, path)
-		
+
 		// Output shell command for directory change
 		absPath, err := filepath.Abs(path)
 		if err != nil {
