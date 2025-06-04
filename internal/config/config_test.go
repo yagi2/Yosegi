@@ -71,7 +71,6 @@ func TestDefaultConfig(t *testing.T) {
 	}
 	expectedAliases := map[string]string{
 		"ls": "list",
-		"sw": "switch",
 		"rm": "remove",
 	}
 	for alias, command := range expectedAliases {
@@ -832,7 +831,6 @@ ui:
     primary_color: "#00FF00"
 aliases:
   ls: "list"
-  sw: "switch"
 `
 	configPath := filepath.Join(configDir, "config.yaml")
 	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {

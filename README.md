@@ -9,8 +9,7 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 ## 機能
 
 - 🎯 **インタラクティブUI**: Bubble TeaとLip Glossで構築された美しいターミナルインターフェース
-- 🌲 **Worktree管理**: git worktreeをシームレスに作成、切り替え、削除
-- 🔄 **シェル統合**: bash/zsh/fishサポートによる自動ディレクトリ切り替え
+- 🌲 **Worktree管理**: git worktreeをシームレスに作成、一覧表示、削除
 - 🎨 **カスタマイズ可能なテーマ**: YAMLベースの色とUI設定
 - ⚡ **キーボードナビゲーション**: Vimスタイルのナビゲーション（j/k）と矢印キー
 - 🛡️ **安全機能**: 確認プロンプトと誤削除防止
@@ -22,29 +21,7 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 ```bash
 git clone https://github.com/yagi2/yosegi.git
 cd yosegi
-go build -o yosegi .
-```
-
-### シェル統合のセットアップ
-
-ディレクトリ切り替え機能を有効にするには、適切なシェル統合を追加します：
-
-#### Bash
-```bash
-# ~/.bashrcに追加
-source /path/to/yosegi/scripts/shell_integration.bash
-```
-
-#### Zsh
-```bash
-# ~/.zshrcに追加
-source /path/to/yosegi/scripts/shell_integration.zsh
-```
-
-#### Fish
-```bash
-# ~/.config/fish/config.fishに追加
-source /path/to/yosegi/scripts/shell_integration.fish
+go build -o bin/yosegi .
 ```
 
 ## 使い方
@@ -64,12 +41,6 @@ yosegi new feature-branch        # 指定したブランチで作成（ブラン
 yosegi new -b new-feature        # 明示的に新しいブランチとworktreeを作成
 yosegi new -p ../feature feature # カスタムパスを指定
 ```
-
-#### Worktreeの切り替え
-```bash
-yosegi switch   # または yosegi sw, yosegi s
-```
-インタラクティブな選択と自動ディレクトリ切り替え。
 
 #### Worktreeの削除
 ```bash
@@ -114,7 +85,6 @@ ui:
   max_path_length: 50
 aliases:
   ls: "list"
-  sw: "switch"
   rm: "remove"
 ```
 
@@ -138,8 +108,8 @@ yosegi list
 # 機能開発用の新しいworktreeを作成
 yosegi new feature/user-auth
 
-# 新しいworktreeに切り替え（自動的にディレクトリが変更される）
-yosegi switch
+# 手動でディレクトリを移動
+cd ../feature-user-auth
 
 # 完了したらworktreeを削除
 yosegi remove
@@ -159,18 +129,30 @@ yosegi remove --force
 
 ### ビルド
 ```bash
+# 通常のビルド
 go build -o bin/yosegi .
+
+# またはTaskを使用
+task build
 ```
 
 ### テスト
 ```bash
+# すべてのテストを実行
 go test ./...
+
+# またはTaskを使用
+task test
 ```
 
 ### リンティング
 ```bash
+# 手動でリンティング
 go fmt ./...
 go vet ./...
+
+# またはTaskを使用
+task lint
 ```
 
 ## コントリビューション

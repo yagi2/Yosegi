@@ -117,13 +117,6 @@ var newCmd = &cobra.Command{
 
 		fmt.Printf("✅ Successfully created worktree '%s' at '%s'\n", branch, path)
 
-		// Output shell command for directory change
-		absPath, err := filepath.Abs(path)
-		if err != nil {
-			absPath = path
-		}
-		fmt.Printf("CD:%s\n", absPath)
-
 		return nil
 	},
 }

@@ -13,19 +13,7 @@ var rootCmd = &cobra.Command{
 	Use:   "yosegi",
 	Short: "Interactive git worktree management tool",
 	Long: `Yosegi is a CLI tool for managing git worktrees with an interactive interface.
-It provides visual and intuitive commands to create, switch, and manage git worktrees.
-
-Shell Integration:
-To enable directory switching functionality, add the following to your shell config:
-
-Bash (~/.bashrc):
-  source /path/to/yosegi/scripts/shell_integration.bash
-
-Zsh (~/.zshrc):
-  source /path/to/yosegi/scripts/shell_integration.zsh
-
-Fish (~/.config/fish/config.fish):
-  source /path/to/yosegi/scripts/shell_integration.fish`,
+It provides visual and intuitive commands to create, list, and manage git worktrees.`,
 	Version: "0.1.0",
 }
 

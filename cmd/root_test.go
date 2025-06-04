@@ -27,8 +27,6 @@ func TestRootCommand(t *testing.T) {
 				"list",
 				"new",
 				"remove",
-				"switch",
-				"Shell Integration:",
 			},
 			expectedError: false,
 		},
@@ -66,19 +64,7 @@ func TestRootCommand(t *testing.T) {
 				Use:   "yosegi",
 				Short: "Interactive git worktree management tool",
 				Long: `Yosegi is a CLI tool for managing git worktrees with an interactive interface.
-It provides visual and intuitive commands to create, switch, and manage git worktrees.
-
-Shell Integration:
-To enable directory switching functionality, add the following to your shell config:
-
-Bash (~/.bashrc):
-  source /path/to/yosegi/scripts/shell_integration.bash
-
-Zsh (~/.zshrc):
-  source /path/to/yosegi/scripts/shell_integration.zsh
-
-Fish (~/.config/fish/config.fish):
-  source /path/to/yosegi/scripts/shell_integration.fish`,
+It provides visual and intuitive commands to create, list, and manage git worktrees.`,
 				Version: "0.1.0",
 			}
 
@@ -98,10 +84,6 @@ Fish (~/.config/fish/config.fish):
 			testRootCmd.AddCommand(&cobra.Command{
 				Use:   "remove",
 				Short: "Remove a git worktree",
-			})
-			testRootCmd.AddCommand(&cobra.Command{
-				Use:   "switch",
-				Short: "Switch to a different worktree",
 			})
 
 			testRootCmd.CompletionOptions.DisableDefaultCmd = true
@@ -171,7 +153,6 @@ func TestRootCommandHasSubcommands(t *testing.T) {
 		"list",
 		"new",
 		"remove",
-		"switch",
 	}
 
 	commands := rootCmd.Commands()
@@ -189,17 +170,13 @@ func TestRootCommandHasSubcommands(t *testing.T) {
 }
 
 func TestRootCommandHelp(t *testing.T) {
-	// Test that help contains shell integration information
+	// Test that help contains basic information
 	helpText := rootCmd.Long
 
 	expectedHelpSections := []string{
-		"Shell Integration:",
-		"Bash (~/.bashrc):",
-		"Zsh (~/.zshrc):",
-		"Fish (~/.config/fish/config.fish):",
-		"shell_integration.bash",
-		"shell_integration.zsh",
-		"shell_integration.fish",
+		"Yosegi is a CLI tool for managing git worktrees",
+		"interactive interface",
+		"create, list, and manage git worktrees",
 	}
 
 	for _, section := range expectedHelpSections {
@@ -287,7 +264,6 @@ func TestRootCommandExecution(t *testing.T) {
 		{"list help", []string{"list", "--help"}, false},
 		{"new help", []string{"new", "--help"}, false},
 		{"remove help", []string{"remove", "--help"}, false},
-		{"switch help", []string{"switch", "--help"}, false},
 		{"config help", []string{"config", "--help"}, false},
 	}
 
@@ -347,7 +323,6 @@ func TestCommandAliases(t *testing.T) {
 		"list":   {"ls", "l"},
 		"new":    {"add", "create", "n"},
 		"remove": {"rm", "delete", "del", "r"},
-		"switch": {"sw", "s", "cd"},
 	}
 
 	for _, cmd := range commands {

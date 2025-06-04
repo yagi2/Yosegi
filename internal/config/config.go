@@ -65,7 +65,6 @@ func defaultConfig() *Config {
 		},
 		Aliases: map[string]string{
 			"ls": "list",
-			"sw": "switch",
 			"rm": "remove",
 		},
 	}
