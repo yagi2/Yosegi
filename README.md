@@ -1,23 +1,23 @@
 # Yosegi 🌲
 
-Interactive git worktree management tool with a beautiful TUI interface.
+美しいTUIインターフェースを備えたインタラクティブなgit worktree管理ツール
 
-## Overview
+## 概要
 
-Yosegi is a CLI tool designed for the modern "Vibe Coding" era, providing intuitive and visual management of git worktrees. Like `tig` and `peco`, it offers an excellent visual interface for managing multiple git worktrees with ease.
+Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツールで、git worktreeの直感的でビジュアルな管理を提供します。`tig`や`peco`のように、複数のgit worktreeを簡単に管理するための優れたビジュアルインターフェースを提供します。
 
-## Features
+## 機能
 
-- 🎯 **Interactive UI**: Beautiful terminal interface built with Bubble Tea and Lip Gloss
-- 🌲 **Worktree Management**: Create, switch, and remove git worktrees seamlessly
-- 🔄 **Shell Integration**: Automatic directory switching with bash/zsh/fish support
-- 🎨 **Customizable Themes**: YAML-based configuration for colors and UI preferences
-- ⚡ **Keyboard Navigation**: Vim-style navigation (j/k) and arrow keys
-- 🛡️ **Safety Features**: Confirmation prompts and protection against accidental deletions
+- 🎯 **インタラクティブUI**: Bubble TeaとLip Glossで構築された美しいターミナルインターフェース
+- 🌲 **Worktree管理**: git worktreeをシームレスに作成、切り替え、削除
+- 🔄 **シェル統合**: bash/zsh/fishサポートによる自動ディレクトリ切り替え
+- 🎨 **カスタマイズ可能なテーマ**: YAMLベースの色とUI設定
+- ⚡ **キーボードナビゲーション**: Vimスタイルのナビゲーション（j/k）と矢印キー
+- 🛡️ **安全機能**: 確認プロンプトと誤削除防止
 
-## Installation
+## インストール
 
-### Build from Source
+### ソースからビルド
 
 ```bash
 git clone https://github.com/yagi2/cli-vibe-go.git
@@ -25,74 +25,74 @@ cd cli-vibe-go
 go build -o yosegi .
 ```
 
-### Shell Integration Setup
+### シェル統合のセットアップ
 
-To enable directory switching functionality, add the appropriate shell integration:
+ディレクトリ切り替え機能を有効にするには、適切なシェル統合を追加します：
 
 #### Bash
 ```bash
-# Add to ~/.bashrc
+# ~/.bashrcに追加
 source /path/to/yosegi/scripts/shell_integration.bash
 ```
 
 #### Zsh
 ```bash
-# Add to ~/.zshrc
+# ~/.zshrcに追加
 source /path/to/yosegi/scripts/shell_integration.zsh
 ```
 
 #### Fish
 ```bash
-# Add to ~/.config/fish/config.fish
+# ~/.config/fish/config.fishに追加
 source /path/to/yosegi/scripts/shell_integration.fish
 ```
 
-## Usage
+## 使い方
 
-### Basic Commands
+### 基本コマンド
 
-#### List Worktrees
+#### Worktreeの一覧表示
 ```bash
-yosegi list     # or yosegi ls, yosegi l
+yosegi list     # または yosegi ls, yosegi l
 ```
-Interactive list of all worktrees with current status indicators.
+現在のステータスインジケータ付きの全worktreeのインタラクティブリスト。
 
-#### Create New Worktree
+#### 新しいWorktreeの作成
 ```bash
-yosegi new [branch]              # Interactive creation
-yosegi new feature-branch        # Create with specified branch
-yosegi new -b new-feature        # Create new branch and worktree
-yosegi new -p ../feature feature # Specify custom path
+yosegi new [branch]              # インタラクティブな作成
+yosegi new feature-branch        # 指定したブランチで作成
+yosegi new -b new-feature        # 新しいブランチとworktreeを作成
+yosegi new -p ../feature feature # カスタムパスを指定
 ```
 
-#### Switch Worktree
+#### Worktreeの切り替え
 ```bash
-yosegi switch   # or yosegi sw, yosegi s
+yosegi switch   # または yosegi sw, yosegi s
 ```
-Interactive selection and automatic directory switching.
+インタラクティブな選択と自動ディレクトリ切り替え。
 
-#### Remove Worktree
+#### Worktreeの削除
 ```bash
-yosegi remove   # or yosegi rm, yosegi delete
+yosegi remove   # または yosegi rm, yosegi delete
 ```
-Safe removal with confirmation prompts.
+確認プロンプト付きの安全な削除。
 
-### Configuration
+### 設定
 
-#### Initialize Configuration
+#### 設定の初期化
 ```bash
 yosegi config init
 ```
-Creates a default configuration file at `~/.config/yosegi/config.yaml`.
+`~/.config/yosegi/config.yaml`にデフォルト設定ファイルを作成します。
 
-#### View Current Configuration
+#### 現在の設定を表示
 ```bash
 yosegi config show
 ```
 
-### Configuration File
+### 設定ファイル
 
-Example `~/.config/yosegi/config.yaml`:
+`~/.config/yosegi/config.yaml`の例：
 
 ```yaml
 default_worktree_path: "../"
@@ -118,81 +118,81 @@ aliases:
   rm: "remove"
 ```
 
-## Keyboard Navigation
+## キーボードナビゲーション
 
-- `↑/k`: Move up
-- `↓/j`: Move down  
-- `Enter`: Select/Execute
-- `d`: Delete (in remove mode)
-- `q`: Quit
-- `Tab/Shift+Tab`: Navigate input fields
+- `↑/k`: 上に移動
+- `↓/j`: 下に移動  
+- `Enter`: 選択/実行
+- `d`: 削除（削除モード時）
+- `q`: 終了
+- `Tab/Shift+Tab`: 入力フィールドのナビゲート
 
-## Examples
+## 使用例
 
-### Typical Workflow
+### 典型的なワークフロー
 
 ```bash
-# List current worktrees
+# 現在のworktreeを一覧表示
 yosegi list
 
-# Create new worktree for feature development
+# 機能開発用の新しいworktreeを作成
 yosegi new feature/user-auth
 
-# Switch to the new worktree (automatically changes directory)
+# 新しいworktreeに切り替え（自動的にディレクトリが変更される）
 yosegi switch
 
-# When done, remove the worktree
+# 完了したらworktreeを削除
 yosegi remove
 ```
 
-### Advanced Usage
+### 高度な使い方
 
 ```bash
-# Create worktree with custom path and new branch
+# カスタムパスと新しいブランチでworktreeを作成
 yosegi new -b hotfix/urgent-fix -p ../hotfix
 
-# Force remove worktree (skip confirmation)
+# 強制的にworktreeを削除（確認をスキップ）
 yosegi remove --force
 ```
 
-## Development
+## 開発
 
-### Building
+### ビルド
 ```bash
 go build -o bin/yosegi .
 ```
 
-### Testing
+### テスト
 ```bash
 go test ./...
 ```
 
-### Linting
+### リンティング
 ```bash
 go fmt ./...
 go vet ./...
 ```
 
-## Contributing
+## コントリビューション
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. リポジトリをフォーク
+2. フィーチャーブランチを作成（`git checkout -b feature/amazing-feature`）
+3. 変更をコミット（`git commit -m 'Add amazing feature'`）
+4. ブランチにプッシュ（`git push origin feature/amazing-feature`）
+5. プルリクエストを作成
 
-## Requirements
+## 動作要件
 
-- Go 1.21+
-- Git with worktree support
-- Terminal with color support
+- Go 1.21以上
+- worktree機能をサポートするGit
+- カラー表示対応のターミナル
 
-## License
+## ライセンス
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
-## Acknowledgments
+## 謝辞
 
-- Inspired by tools like `tig` and `peco` for their excellent visual interfaces
-- Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss)
-- Uses [Cobra](https://github.com/spf13/cobra) for CLI framework
+- `tig`や`peco`などの優れたビジュアルインターフェースにインスパイアされました
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea)と[Lip Gloss](https://github.com/charmbracelet/lipgloss)で構築
+- CLIフレームワークに[Cobra](https://github.com/spf13/cobra)を使用
