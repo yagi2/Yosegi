@@ -5,8 +5,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
-	"github.com/yagi2/cli-vibe-go/internal/git"
-	"github.com/yagi2/cli-vibe-go/internal/ui"
+	"github.com/yagi2/yosegi/internal/git"
+	"github.com/yagi2/yosegi/internal/ui"
 )
 
 var (

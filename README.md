@@ -20,8 +20,8 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 ### ソースからビルド
 
 ```bash
-git clone https://github.com/yagi2/cli-vibe-go.git
-cd cli-vibe-go
+git clone https://github.com/yagi2/yosegi.git
+cd yosegi
 go build -o yosegi .
 ```
 

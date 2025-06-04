@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"github.com/yagi2/cli-vibe-go/internal/config"
+	"github.com/yagi2/yosegi/internal/config"
 )
 
 // Color palette (default values, can be overridden by config)

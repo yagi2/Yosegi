@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/yagi2/cli-vibe-go/internal/config"
+	"github.com/yagi2/yosegi/internal/config"
 )
 
 var configCmd = &cobra.Command{

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/yagi2/cli-vibe-go/cmd"
+import "github.com/yagi2/yosegi/cmd"
 
 func main() {
 	cmd.Execute()

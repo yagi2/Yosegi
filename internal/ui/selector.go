@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/yagi2/cli-vibe-go/internal/git"
+	"github.com/yagi2/yosegi/internal/git"
 )
 
 type keyMap struct {
