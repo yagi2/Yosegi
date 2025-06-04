@@ -2,9 +2,10 @@ package ui
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/yagi2/cli-vibe-go/internal/config"
 )
 
-// Color palette
+// Color palette (default values, can be overridden by config)
 var (
 	Primary   = lipgloss.Color("#7C3AED") // Purple
 	Secondary = lipgloss.Color("#06B6D4") // Cyan  
@@ -14,6 +15,31 @@ var (
 	Muted     = lipgloss.Color("#6B7280") // Gray
 	Text      = lipgloss.Color("#F9FAFB") // Light
 )
+
+// InitializeTheme initializes the theme from config
+func InitializeTheme(cfg *config.Config) {
+	if cfg.Theme.Primary != "" {
+		Primary = lipgloss.Color(cfg.Theme.Primary)
+	}
+	if cfg.Theme.Secondary != "" {
+		Secondary = lipgloss.Color(cfg.Theme.Secondary)
+	}
+	if cfg.Theme.Success != "" {
+		Success = lipgloss.Color(cfg.Theme.Success)
+	}
+	if cfg.Theme.Warning != "" {
+		Warning = lipgloss.Color(cfg.Theme.Warning)
+	}
+	if cfg.Theme.Error != "" {
+		Error = lipgloss.Color(cfg.Theme.Error)
+	}
+	if cfg.Theme.Muted != "" {
+		Muted = lipgloss.Color(cfg.Theme.Muted)
+	}
+	if cfg.Theme.Text != "" {
+		Text = lipgloss.Color(cfg.Theme.Text)
+	}
+}
 
 // Base styles
 var (
