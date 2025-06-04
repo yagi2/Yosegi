@@ -54,7 +54,7 @@ func defaultConfig() *Config {
 			Text:      "#F9FAFB",
 		},
 		Git: GitConfig{
-			AutoCreateBranch: false,
+			AutoCreateBranch: true,
 			DefaultRemote:    "origin",
 			ExcludePatterns:  []string{},
 		},

@@ -95,6 +95,16 @@ func (m *manager) List() ([]Worktree, error) {
 
 // Add creates a new worktree
 func (m *manager) Add(path, branch string, createBranch bool) error {
+	// Check if branch exists
+	if !createBranch {
+		checkCmd := exec.Command("git", "rev-parse", "--verify", fmt.Sprintf("refs/heads/%s", branch))
+		checkCmd.Dir = m.repoRoot
+		if err := checkCmd.Run(); err != nil {
+			// Branch doesn't exist, so create it
+			createBranch = true
+		}
+	}
+
 	args := []string{"worktree", "add"}
 	if createBranch {
 		args = append(args, "-b", branch)

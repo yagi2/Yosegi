@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+	"github.com/yagi2/yosegi/internal/config"
 	"github.com/yagi2/yosegi/internal/git"
 	"github.com/yagi2/yosegi/internal/ui"
 )
@@ -22,6 +23,16 @@ var newCmd = &cobra.Command{
 	Long:  "Create a new git worktree interactively or with specified parameters.",
 	Aliases: []string{"add", "create", "n"},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Load configuration
+		cfg, err := config.Load()
+		if err != nil {
+			cfg = &config.Config{
+				Git: config.GitConfig{
+					AutoCreateBranch: false,
+				},
+			}
+		}
+
 		manager, err := git.NewManager()
 		if err != nil {
 			return fmt.Errorf("failed to initialize git manager: %w", err)
@@ -92,6 +103,11 @@ var newCmd = &cobra.Command{
 		}
 
 		// Create the worktree
+		// Use config auto_create_branch if createBranch flag is not set
+		if !createBranch && cfg.Git.AutoCreateBranch {
+			createBranch = true
+		}
+
 		fmt.Printf("Creating worktree '%s' at '%s'...\n", branch, path)
 		err = manager.Add(path, branch, createBranch)
 		if err != nil {

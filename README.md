@@ -60,8 +60,8 @@ yosegi list     # または yosegi ls, yosegi l
 #### 新しいWorktreeの作成
 ```bash
 yosegi new [branch]              # インタラクティブな作成
-yosegi new feature-branch        # 指定したブランチで作成
-yosegi new -b new-feature        # 新しいブランチとworktreeを作成
+yosegi new feature-branch        # 指定したブランチで作成（ブランチが存在しない場合は自動作成）
+yosegi new -b new-feature        # 明示的に新しいブランチとworktreeを作成
 yosegi new -p ../feature feature # カスタムパスを指定
 ```
 
@@ -105,7 +105,7 @@ theme:
   muted: "#6B7280"
   text: "#F9FAFB"
 git:
-  auto_create_branch: false
+  auto_create_branch: true   # ブランチが存在しない場合、自動的に作成
   default_remote: "origin"
   exclude_patterns: []
 ui:

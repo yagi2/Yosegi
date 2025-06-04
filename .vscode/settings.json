@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
-        "yagi"
+        "bubbletea",
+        "charmbracelet",
+        "Worktree",
+        "worktrees",
+        "yagi",
+        "yosegi"
     ],
     // Go言語設定
     "go.useLanguageServer": true,
