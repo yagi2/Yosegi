@@ -1,99 +1,198 @@
-# CLI Vibe Go Template
-GitHub Codespaces + Go 1.24 + Claude Codeで動く、CLIツール開発用テンプレートです。
-起動直後から `main.go` を編集してすぐ実行できます。
+# Yosegi 🌲
 
-## 特徴
+Interactive git worktree management tool with a beautiful TUI interface.
 
-- **GitHub Codespaces**: クラウド開発環境ですぐに開始
-- **Go 1.24**: 最新のGo言語環境
-- **Claude Code**: AI支援コーディング環境を内蔵
-- **VS Code拡張**: Go開発に最適化された拡張機能セット
+## Overview
 
-## 使い方
+Yosegi is a CLI tool designed for the modern "Vibe Coding" era, providing intuitive and visual management of git worktrees. Like `tig` and `peco`, it offers an excellent visual interface for managing multiple git worktrees with ease.
 
-### 基本的なGo開発
+## Features
 
-```bash
-go run main.go arg1 arg2
-```
+- 🎯 **Interactive UI**: Beautiful terminal interface built with Bubble Tea and Lip Gloss
+- 🌲 **Worktree Management**: Create, switch, and remove git worktrees seamlessly
+- 🔄 **Shell Integration**: Automatic directory switching with bash/zsh/fish support
+- 🎨 **Customizable Themes**: YAML-based configuration for colors and UI preferences
+- ⚡ **Keyboard Navigation**: Vim-style navigation (j/k) and arrow keys
+- 🛡️ **Safety Features**: Confirmation prompts and protection against accidental deletions
 
-### Claude Codeを使用したAI支援開発
+## Installation
 
-```bash
-# 対話的なコーディング支援
-claude
-
-# 一回だけの質問
-claude -p "Go でCLIツールを作る方法を教えて"
-
-# 前回の会話を継続
-claude -c
-```
-
-## セットアップ
-
-### 1. 前提条件
-- [Claude MAX](https://claude.ai/) サブスクリプション契約
-- API キーは不要（サブスクリプションを直接使用）
-
-### 2. Codespace作成・認証
-1. このリポジトリで "Code" > "Codespaces" > "Create codespace on main"
-2. 環境構築を待つ（数分程度、Claude Codeが自動インストールされます）
-3. ターミナルで認証: `claude /login`
-
-## 詳細なセットアップ手順
-
-### Claude Codeの認証
-
-Codespaceが起動したら、Claude MAXサブスクリプションで認証します：
+### Build from Source
 
 ```bash
-claude /login
+git clone https://github.com/yagi2/cli-vibe-go.git
+cd cli-vibe-go
+go build -o yosegi .
 ```
 
-これにより以下が実行されます：
-1. ブラウザウィンドウが開くか、URLが提供されます
-2. Claude.aiでの認証画面にリダイレクトされます
-3. 既存のClaude MAXサブスクリプションが使用されます
-4. 認証情報がCodespace内にローカル保存されます
+### Shell Integration Setup
 
-### インストール確認
+To enable directory switching functionality, add the appropriate shell integration:
 
-Claude Codeが正常に動作しているかテストします：
+#### Bash
+```bash
+# Add to ~/.bashrc
+source /path/to/yosegi/scripts/shell_integration.bash
+```
+
+#### Zsh
+```bash
+# Add to ~/.zshrc
+source /path/to/yosegi/scripts/shell_integration.zsh
+```
+
+#### Fish
+```bash
+# Add to ~/.config/fish/config.fish
+source /path/to/yosegi/scripts/shell_integration.fish
+```
+
+## Usage
+
+### Basic Commands
+
+#### List Worktrees
+```bash
+yosegi list     # or yosegi ls, yosegi l
+```
+Interactive list of all worktrees with current status indicators.
+
+#### Create New Worktree
+```bash
+yosegi new [branch]              # Interactive creation
+yosegi new feature-branch        # Create with specified branch
+yosegi new -b new-feature        # Create new branch and worktree
+yosegi new -p ../feature feature # Specify custom path
+```
+
+#### Switch Worktree
+```bash
+yosegi switch   # or yosegi sw, yosegi s
+```
+Interactive selection and automatic directory switching.
+
+#### Remove Worktree
+```bash
+yosegi remove   # or yosegi rm, yosegi delete
+```
+Safe removal with confirmation prompts.
+
+### Configuration
+
+#### Initialize Configuration
+```bash
+yosegi config init
+```
+Creates a default configuration file at `~/.config/yosegi/config.yaml`.
+
+#### View Current Configuration
+```bash
+yosegi config show
+```
+
+### Configuration File
+
+Example `~/.config/yosegi/config.yaml`:
+
+```yaml
+default_worktree_path: "../"
+theme:
+  primary: "#7C3AED"
+  secondary: "#06B6D4" 
+  success: "#10B981"
+  warning: "#F59E0B"
+  error: "#EF4444"
+  muted: "#6B7280"
+  text: "#F9FAFB"
+git:
+  auto_create_branch: false
+  default_remote: "origin"
+  exclude_patterns: []
+ui:
+  show_icons: true
+  confirm_delete: true
+  max_path_length: 50
+aliases:
+  ls: "list"
+  sw: "switch"
+  rm: "remove"
+```
+
+## Keyboard Navigation
+
+- `↑/k`: Move up
+- `↓/j`: Move down  
+- `Enter`: Select/Execute
+- `d`: Delete (in remove mode)
+- `q`: Quit
+- `Tab/Shift+Tab`: Navigate input fields
+
+## Examples
+
+### Typical Workflow
 
 ```bash
-claude --version
+# List current worktrees
+yosegi list
+
+# Create new worktree for feature development
+yosegi new feature/user-auth
+
+# Switch to the new worktree (automatically changes directory)
+yosegi switch
+
+# When done, remove the worktree
+yosegi remove
 ```
 
-### 認証に関する注意点
+### Advanced Usage
 
-- **API Key不要**: Claude MAXサブスクリプションを直接使用
-- **一回設定**: 認証はCodespace内で永続化されます
-- **アカウント切り替え**: `claude /login` で別アカウントに切り替え可能
+```bash
+# Create worktree with custom path and new branch
+yosegi new -b hotfix/urgent-fix -p ../hotfix
 
-## トラブルシューティング
+# Force remove worktree (skip confirmation)
+yosegi remove --force
+```
 
-### 認証関連の問題
-- ログインに失敗する場合: `claude /login` を再実行
-- [Claude.ai](https://claude.ai/) でClaude MAXサブスクリプションが有効か確認
-- ブラウザアクセスが可能な環境か確認
+## Development
 
-### インストール関連の問題
-- Node.jsが利用可能か確認: `node --version`
-- 手動でClaude Codeをインストール: `npm install -g @anthropic-ai/claude-code`
+### Building
+```bash
+go build -o bin/yosegi .
+```
 
-### 権限関連の問題
-- 必要に応じてsudoで実行: `sudo npm install -g @anthropic-ai/claude-code`
+### Testing
+```bash
+go test ./...
+```
 
-### ブラウザアクセスの問題
-- ヘッドレス環境の場合、Claude CodeがURLを提供します
-- 提供されたURLをClaude.aiにログイン済みのブラウザで開いてください
+### Linting
+```bash
+go fmt ./...
+go vet ./...
+```
 
-## 活用のヒント
+## Contributing
 
-- Go開発支援にClaude Codeを活用
-- CLIツール実装パターンのアドバイスを求める
-- コードレビューや改善提案を受ける
-- Goアプリケーションのデバッグと最適化
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-詳細情報: [Claude Code ドキュメント](https://docs.anthropic.com/en/docs/claude-code)
+## Requirements
+
+- Go 1.21+
+- Git with worktree support
+- Terminal with color support
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Inspired by tools like `tig` and `peco` for their excellent visual interfaces
+- Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss)
+- Uses [Cobra](https://github.com/spf13/cobra) for CLI framework
