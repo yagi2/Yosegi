@@ -1,0 +1,84 @@
+{
+    "cSpell.words": [
+        "yagi"
+    ],
+    // Go言語設定
+    "go.useLanguageServer": true,
+    "go.lintOnSave": "package",
+    "go.lintTool": "golangci-lint",
+    "go.formatTool": "goimports",
+    "go.testOnSave": true,
+    "go.coverOnSave": true,
+    "go.coverageDecorator": {
+        "type": "gutter",
+        "coveredHighlightColor": "rgba(64,128,128,0.5)",
+        "uncoveredHighlightColor": "rgba(128,64,64,0.25)",
+        "coveredGutterStyle": "blockgreen",
+        "uncoveredGutterStyle": "blockred"
+    },
+    "go.autocompleteUnimportedPackages": true,
+    "go.gotoSymbol.includeImports": true,
+    "go.inferGopath": false,
+    "go.vetOnSave": "package",
+    "go.useCodeSnippetsOnFunctionSuggest": true,
+    "go.testFlags": ["-v"],
+    "go.testTimeout": "30s",
+    "gopls": {
+        "ui.semanticTokens": true,
+        "ui.completion.usePlaceholders": true,
+        "formatting.gofumpt": true
+    },
+    // エディタ設定
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.snippetSuggestions": "none"
+    },
+    "[go.mod]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    // ファイル関連設定
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/.hg/store/**": true,
+        "**/vendor/**": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
+    "search.exclude": {
+        "**/vendor": true,
+        "**/node_modules": true,
+        "**/*.sum": true
+    },
+    // デバッグ設定
+    "go.delveConfig": {
+        "apiVersion": 2,
+        "showGlobalVariables": true
+    },
+    // コード品質
+    "go.diagnostic.vulncheck": "Imports",
+    "go.liveErrors": {
+        "enabled": true,
+        "delay": 500
+    },
+    // プロジェクト固有の設定
+    "go.toolsManagement.autoUpdate": true,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.env.linux": {
+        "GOPROXY": "https://proxy.golang.org,direct",
+        "GOSUMDB": "sum.golang.org"
+    }
+}

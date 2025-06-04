@@ -1,0 +1,100 @@
+version: "3"
+
+vars:
+  APP_NAME: app
+  BIN_DIR: bin
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list-all
+
+  dev:
+    desc: Run the application in development mode
+    cmds:
+      - echo "Running in development mode..."
+      - go run main.go
+
+  test:
+    desc: Run all tests with race detection
+    cmds:
+      - echo "Running all tests..."
+      - go test -v -race ./...
+
+  test-short:
+    desc: Run only short tests for quick feedback
+    cmds:
+      - echo "Running short tests..."
+      - go test -short -cover ./...
+
+  test-race:
+    desc: Run tests with race detection
+    cmds:
+      - echo "Running tests with race detection..."
+      - go test -race ./...
+
+  lint:
+    desc: Run all linting checks
+    cmds:
+      - echo "Running linting checks..."
+      - go fmt ./...
+      - go vet ./...
+      - |
+        if command -v golangci-lint > /dev/null; then
+          golangci-lint run
+        else
+          echo "golangci-lint not installed. Skipping..."
+        fi
+
+  fmt:
+    desc: Format all Go files
+    cmds:
+      - echo "Formatting code..."
+      - go fmt ./...
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - echo "Running go vet..."
+      - go vet ./...
+
+  build:
+    desc: Build the application
+    cmds:
+      - echo "Building application..."
+      - mkdir -p bin
+      - go build -o bin/app .
+      - echo "Built bin/app"
+
+  build-release:
+    desc: Build optimized release binary
+    cmds:
+      - echo "Building optimized release binary..."
+      - mkdir -p bin
+      - go build -ldflags="-s -w" -o bin/app .
+      - echo "Built optimized bin/app"
+      - ls -lh bin/app
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - echo "Cleaning up..."
+      - rm -rf bin/
+      - go clean
+      - echo "Cleaned"
+
+  install:
+    desc: Install the binary to GOPATH/bin
+    cmds:
+      - echo "Installing to GOPATH/bin..."
+      - go install .
+      - echo "Installed"
+
+  all:
+    desc: Run fmt, vet, test, and build
+    deps: [fmt, vet, test, build]
+
+  ci:
+    desc: Run all checks for CI (fmt, vet, lint, test)
+    deps: [fmt, vet, lint, test]
