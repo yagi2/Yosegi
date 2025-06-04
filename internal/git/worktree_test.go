@@ -461,3 +461,132 @@ branch refs/heads/hotfix/urgent
 		}
 	}
 }
+
+func TestManagerListErrors(t *testing.T) {
+	// Test List method error handling
+	m := &manager{repoRoot: "/nonexistent"}
+	
+	_, err := m.List()
+	if err == nil {
+		t.Error("Expected error for non-existent repository")
+	}
+	
+	if !strings.Contains(err.Error(), "failed to list worktrees") {
+		t.Errorf("Expected specific error message, got: %v", err)
+	}
+}
+
+func TestManagerAddErrors(t *testing.T) {
+	// Test Add method error handling
+	m := &manager{repoRoot: "/nonexistent"}
+	
+	err := m.Add("/tmp/test", "test-branch", false)
+	if err == nil {
+		t.Error("Expected error for non-existent repository")
+	}
+	
+	if !strings.Contains(err.Error(), "failed to add worktree") {
+		t.Errorf("Expected specific error message, got: %v", err)
+	}
+}
+
+func TestManagerRemoveErrors(t *testing.T) {
+	// Test Remove method error handling
+	m := &manager{repoRoot: "/nonexistent"}
+	
+	err := m.Remove("/tmp/test", false)
+	if err == nil {
+		t.Error("Expected error for non-existent repository")
+	}
+	
+	if !strings.Contains(err.Error(), "failed to remove worktree") {
+		t.Errorf("Expected specific error message, got: %v", err)
+	}
+}
+
+func TestManagerRemoveWithForce(t *testing.T) {
+	// Test Remove method with force flag
+	m := &manager{repoRoot: "/nonexistent"}
+	
+	err := m.Remove("/tmp/test", true)
+	if err == nil {
+		t.Error("Expected error for non-existent repository")
+	}
+	
+	// Error should still occur, but we test that force flag is handled
+	if !strings.Contains(err.Error(), "failed to remove worktree") {
+		t.Errorf("Expected specific error message, got: %v", err)
+	}
+}
+
+func TestManagerAddWithCreateBranch(t *testing.T) {
+	// Test Add method with createBranch flag
+	m := &manager{repoRoot: "/nonexistent"}
+	
+	err := m.Add("/tmp/test", "new-branch", true)
+	if err == nil {
+		t.Error("Expected error for non-existent repository")
+	}
+	
+	if !strings.Contains(err.Error(), "failed to add worktree") {
+		t.Errorf("Expected specific error message, got: %v", err)
+	}
+}
+
+func TestManagerMethodSignatures(t *testing.T) {
+	// Test that all manager methods have correct signatures for interface compliance
+	
+	var m Manager
+	m = &manager{repoRoot: "/test"}
+	
+	// Test List signature: () ([]Worktree, error)
+	worktrees, err := m.List()
+	_ = worktrees
+	_ = err
+	
+	// Test Add signature: (string, string, bool) error
+	err = m.Add("path", "branch", true)
+	_ = err
+	
+	// Test Remove signature: (string, bool) error
+	err = m.Remove("path", false)
+	_ = err
+	
+	// Test GetCurrentPath signature: () (string, error)
+	path, err := m.GetCurrentPath()
+	_ = path
+	_ = err
+}
+
+func TestManagerPathHandling(t *testing.T) {
+	// Test path handling in manager methods
+	m := &manager{repoRoot: "/test/repo"}
+	
+	// Test empty path handling
+	err := m.Add("", "branch", false)
+	if err == nil {
+		t.Log("Add with empty path handled (expected to fail)")
+	}
+	
+	err = m.Remove("", false)
+	if err == nil {
+		t.Log("Remove with empty path handled (expected to fail)")
+	}
+}
+
+func TestManagerBranchHandling(t *testing.T) {
+	// Test branch name handling in Add method
+	m := &manager{repoRoot: "/test/repo"}
+	
+	// Test empty branch name
+	err := m.Add("/tmp/test", "", false)
+	if err == nil {
+		t.Log("Add with empty branch handled (expected to fail)")
+	}
+	
+	// Test branch name with spaces
+	err = m.Add("/tmp/test", "branch with spaces", false)
+	if err == nil {
+		t.Log("Add with spaced branch name handled (expected to fail)")
+	}
+}

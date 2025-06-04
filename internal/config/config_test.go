@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -592,11 +593,176 @@ ui:
 	}
 }
 
-func BenchmarkDefaultConfig(b *testing.B) {
+func TestGetConfigPathErrors(t *testing.T) {
+	// Test getConfigPath when HOME is not set
+	originalHome := os.Getenv("HOME")
+	defer os.Setenv("HOME", originalHome)
+	
+	os.Unsetenv("HOME")
+	
+	// Create local config file to test local config path
+	tmpDir, err := os.MkdirTemp("", "yosegi-test-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get current directory: %v", err)
+	}
+	defer os.Chdir(originalDir)
+	
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("Failed to change directory: %v", err)
+	}
+	
+	// Create local config file
+	localConfig := ".yosegi.yaml"
+	if err := os.WriteFile(localConfig, []byte("test"), 0644); err != nil {
+		t.Fatalf("Failed to create local config: %v", err)
+	}
+	
+	// Should return local config path
+	path, err := getConfigPath()
+	if err != nil {
+		t.Errorf("Expected no error with local config, got: %v", err)
+	}
+	
+	if !strings.HasSuffix(path, localConfig) {
+		t.Errorf("Expected path to end with %s, got: %s", localConfig, path)
+	}
+}
+
+func TestSaveErrors(t *testing.T) {
+	// Test Save with invalid config path
+	originalHome := os.Getenv("HOME")
+	defer os.Setenv("HOME", originalHome)
+	
+	// Set HOME to an invalid path
+	os.Setenv("HOME", "/dev/null/invalid")
+	
+	config := defaultConfig()
+	err := Save(config)
+	if err == nil {
+		t.Error("Expected error when saving to invalid path")
+	}
+}
+
+func TestLoadLocalConfig(t *testing.T) {
+	// Test loading from local .yosegi.yaml file
+	tmpDir, err := os.MkdirTemp("", "yosegi-test-local-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get current directory: %v", err)
+	}
+	defer os.Chdir(originalDir)
+	
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("Failed to change directory: %v", err)
+	}
+	
+	// Create local config
+	localConfig := `
+default_worktree_path: "./worktrees"
+git:
+  auto_create_branch: true
+theme:
+  primary: "#00FF00"
+`
+	if err := os.WriteFile(".yosegi.yaml", []byte(localConfig), 0644); err != nil {
+		t.Fatalf("Failed to create local config: %v", err)
+	}
+	
+	config, err := Load()
+	if err != nil {
+		t.Errorf("Failed to load local config: %v", err)
+	}
+	
+	if config.DefaultWorktreePath != "./worktrees" {
+		t.Errorf("Expected default worktree path './worktrees', got '%s'", config.DefaultWorktreePath)
+	}
+	
+	// Note: Theme is at the root level of Config, not under UI
+	if config.Theme.Primary != "#00FF00" {
+		t.Errorf("Expected primary color '#00FF00', got '%s'", config.Theme.Primary)
+	}
+}
+
+
+func BenchmarkLoadConfig(b *testing.B) {
+	// Create a test config file
+	tmpDir, err := os.MkdirTemp("", "yosegi-bench-*")
+	if err != nil {
+		b.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	
+	configDir := filepath.Join(tmpDir, ".config", "yosegi")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		b.Fatalf("Failed to create config dir: %v", err)
+	}
+	
+	configContent := `
+default_worktree_path: "../"
+git:
+  auto_create_branch: true
+ui:
+  show_icons: true
+  confirm_delete: true
+  max_path_length: 50
+  theme:
+    primary_color: "#00FF00"
+aliases:
+  ls: "list"
+  sw: "switch"
+`
+	configPath := filepath.Join(configDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+		b.Fatalf("Failed to create config file: %v", err)
+	}
+	
+	originalHome := os.Getenv("HOME")
+	defer os.Setenv("HOME", originalHome)
+	os.Setenv("HOME", tmpDir)
+	
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		cfg := defaultConfig()
-		if cfg == nil {
-			b.Errorf("defaultConfig() returned nil")
+		_, err := Load()
+		if err != nil {
+			b.Errorf("Failed to load config: %v", err)
+		}
+	}
+}
+
+func BenchmarkSaveConfig(b *testing.B) {
+	tmpDir, err := os.MkdirTemp("", "yosegi-bench-*")
+	if err != nil {
+		b.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	
+	configDir := filepath.Join(tmpDir, ".config", "yosegi")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		b.Fatalf("Failed to create config dir: %v", err)
+	}
+	
+	originalHome := os.Getenv("HOME")
+	defer os.Setenv("HOME", originalHome)
+	os.Setenv("HOME", tmpDir)
+	
+	config := defaultConfig()
+	
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := Save(config)
+		if err != nil {
+			b.Errorf("Failed to save config: %v", err)
 		}
 	}
 }
