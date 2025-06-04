@@ -119,9 +119,48 @@ func Load() (*Config, error) {
 	if config.DefaultWorktreePath == "" {
 		config.DefaultWorktreePath = defaultCfg.DefaultWorktreePath
 	}
+	
+	// Merge theme fields individually
 	if config.Theme.Primary == "" {
-		config.Theme = defaultCfg.Theme
+		config.Theme.Primary = defaultCfg.Theme.Primary
 	}
+	if config.Theme.Secondary == "" {
+		config.Theme.Secondary = defaultCfg.Theme.Secondary
+	}
+	if config.Theme.Success == "" {
+		config.Theme.Success = defaultCfg.Theme.Success
+	}
+	if config.Theme.Warning == "" {
+		config.Theme.Warning = defaultCfg.Theme.Warning
+	}
+	if config.Theme.Error == "" {
+		config.Theme.Error = defaultCfg.Theme.Error
+	}
+	if config.Theme.Muted == "" {
+		config.Theme.Muted = defaultCfg.Theme.Muted
+	}
+	if config.Theme.Text == "" {
+		config.Theme.Text = defaultCfg.Theme.Text
+	}
+	
+	// Merge git config fields
+	if config.Git.DefaultRemote == "" {
+		config.Git.DefaultRemote = defaultCfg.Git.DefaultRemote
+	}
+	if config.Git.ExcludePatterns == nil {
+		config.Git.ExcludePatterns = defaultCfg.Git.ExcludePatterns
+	}
+	
+	// Merge UI config fields (need to check if they were actually set)
+	// For boolean fields, we need to check if they were explicitly set
+	// This is a limitation of YAML unmarshaling - we can't distinguish between
+	// false and unset. For now, we'll use defaults for uninitialized structs.
+	if config.UI.MaxPathLength == 0 {
+		config.UI.MaxPathLength = defaultCfg.UI.MaxPathLength
+	}
+	// Note: ShowIcons and ConfirmDelete will use Go's zero values (false)
+	// if not explicitly set in config. This is expected behavior.
+	
 	if config.Aliases == nil {
 		config.Aliases = defaultCfg.Aliases
 	}
