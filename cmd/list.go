@@ -29,11 +29,11 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("failed to list worktrees: %w", err)
 		}
 
-		// Check if TTY is available or plain output is requested
-		if plainOutput || !isatty() {
+		// Check if plain output is explicitly requested
+		if plainOutput {
 			// Plain output mode
 			if len(worktrees) == 0 {
-				fmt.Println("No worktrees found")
+				fmt.Println("No worktree found")
 				return nil
 			}
 

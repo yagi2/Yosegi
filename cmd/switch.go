@@ -60,7 +60,7 @@ var switchCmd = &cobra.Command{
 			}
 			fmt.Printf("CD:%s\n", absPath)
 
-			// Show help message unless suppressed by environment variable
+			// Show help message only when shell integration is not active
 			if os.Getenv("YOSEGI_SHELL_INTEGRATION") == "" {
 				fmt.Fprintf(os.Stderr, "\n# To enable automatic directory switching, set up shell integration:\n")
 				fmt.Fprintf(os.Stderr, "# For bash: source /path/to/yosegi/scripts/shell_integration.bash\n")
@@ -73,8 +73,8 @@ var switchCmd = &cobra.Command{
 			return nil
 		}
 
-		// Check if TTY is available or plain output is requested
-		if switchPlainOutput || !isatty() {
+		// Check if plain output is explicitly requested
+		if switchPlainOutput {
 			// Plain output mode - just list worktrees for manual selection
 			fmt.Println("Available worktrees:")
 			for i, wt := range worktrees {
@@ -111,7 +111,7 @@ var switchCmd = &cobra.Command{
 
 			fmt.Printf("CD:%s\n", absPath)
 
-			// Show help message unless suppressed by environment variable
+			// Show help message only when shell integration is not active
 			if os.Getenv("YOSEGI_SHELL_INTEGRATION") == "" {
 				fmt.Fprintf(os.Stderr, "\n# To enable automatic directory switching, set up shell integration:\n")
 				fmt.Fprintf(os.Stderr, "# For bash: source /path/to/yosegi/scripts/shell_integration.bash\n")
