@@ -49,24 +49,33 @@ var newCmd = &cobra.Command{
 
 		// Interactive mode for missing parameters
 		if branch == "" || worktreePath == "" {
-			prompts := []string{}
-			defaults := []string{}
+			var model ui.InputModel
 
-			if branch == "" {
-				prompts = append(prompts, "Branch name (e.g., feature/new-feature)")
-				defaults = append(defaults, "")
-			}
+			// If both branch and path are missing, use the enhanced worktree input with auto-generation
+			if branch == "" && worktreePath == "" {
+				model = ui.NewWorktreeInput("Create New Worktree", cfg.DefaultWorktreePath)
+			} else {
+				// Fallback to regular input for partial inputs
+				prompts := []string{}
+				defaults := []string{}
 
-			if worktreePath == "" {
-				prompts = append(prompts, "Worktree directory path (e.g., ../feature-branch)")
-				if branch != "" {
-					defaults = append(defaults, filepath.Join("..", branch))
-				} else {
+				if branch == "" {
+					prompts = append(prompts, "Branch name (e.g., feature/new-feature)")
 					defaults = append(defaults, "")
 				}
+
+				if worktreePath == "" {
+					prompts = append(prompts, "Worktree directory path (e.g., ../feature-branch)")
+					if branch != "" {
+						defaults = append(defaults, filepath.Join(cfg.DefaultWorktreePath, branch))
+					} else {
+						defaults = append(defaults, "")
+					}
+				}
+
+				model = ui.NewInput("Create New Worktree", prompts, defaults)
 			}
 
-			model := ui.NewInput("Create New Worktree", prompts, defaults)
 			program := tea.NewProgram(model)
 
 			finalModel, err := program.Run()
