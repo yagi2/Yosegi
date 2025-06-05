@@ -87,6 +87,9 @@ var (
 			Bold(true).
 			Padding(0, 1)
 
+	NormalStyle = lipgloss.NewStyle().
+			Foreground(Text)
+
 	BorderStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(Primary).

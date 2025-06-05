@@ -39,8 +39,8 @@ func TestRootCommand(t *testing.T) {
 			expectedError: false,
 		},
 		{
-			name: "No arguments (should run default list behavior)",
-			args: []string{},
+			name:           "No arguments (should run default list behavior)",
+			args:           []string{},
 			expectedOutput: []string{
 				// Running in git repo, should work without error
 			},
