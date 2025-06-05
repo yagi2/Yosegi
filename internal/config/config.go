@@ -28,9 +28,10 @@ type ThemeConfig struct {
 
 // GitConfig represents git-specific configuration
 type GitConfig struct {
-	AutoCreateBranch bool     `yaml:"auto_create_branch"`
-	DefaultRemote    string   `yaml:"default_remote"`
-	ExcludePatterns  []string `yaml:"exclude_patterns"`
+	AutoCreateBranch              bool     `yaml:"auto_create_branch"`
+	DeleteBranchOnWorktreeRemove  bool     `yaml:"delete_branch_on_worktree_remove"`
+	DefaultRemote                 string   `yaml:"default_remote"`
+	ExcludePatterns               []string `yaml:"exclude_patterns"`
 }
 
 // UIConfig represents UI-specific configuration
@@ -54,9 +55,10 @@ func defaultConfig() *Config {
 			Text:      "#F9FAFB",
 		},
 		Git: GitConfig{
-			AutoCreateBranch: true,
-			DefaultRemote:    "origin",
-			ExcludePatterns:  []string{},
+			AutoCreateBranch:             true,
+			DeleteBranchOnWorktreeRemove: false, // Default to false for safety
+			DefaultRemote:                "origin",
+			ExcludePatterns:              []string{},
 		},
 		UI: UIConfig{
 			ShowIcons:     true,

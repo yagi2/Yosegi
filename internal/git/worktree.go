@@ -23,6 +23,8 @@ type Manager interface {
 	Add(path, branch string, createBranch bool) error
 	Remove(path string, force bool) error
 	GetCurrentPath() (string, error)
+	DeleteBranch(branch string, force bool) error
+	HasUnpushedCommits(branch string) (bool, int, error)
 }
 
 type manager struct {
@@ -246,4 +248,65 @@ func parseWorktreeList(output string) ([]Worktree, error) {
 	}
 
 	return worktrees, nil
+}
+
+// DeleteBranch deletes a local branch
+func (m *manager) DeleteBranch(branch string, force bool) error {
+	args := []string{"branch", "-d"}
+	if force {
+		args[1] = "-D"
+	}
+	args = append(args, branch)
+
+	cmd := exec.Command("git", args...)
+	cmd.Dir = m.repoRoot
+	
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		errorMsg := string(output)
+		if strings.Contains(errorMsg, "not found") {
+			return fmt.Errorf("branch '%s' not found", branch)
+		}
+		if strings.Contains(errorMsg, "not fully merged") {
+			return fmt.Errorf("branch '%s' is not fully merged. Use force flag to delete anyway", branch)
+		}
+		return fmt.Errorf("failed to delete branch: %s", errorMsg)
+	}
+	return nil
+}
+
+// HasUnpushedCommits checks if a branch has unpushed commits
+func (m *manager) HasUnpushedCommits(branch string) (bool, int, error) {
+	// First check if the branch has an upstream
+	upstreamCmd := exec.Command("git", "rev-parse", "--abbrev-ref", fmt.Sprintf("%s@{upstream}", branch))
+	upstreamCmd.Dir = m.repoRoot
+	upstreamOutput, err := upstreamCmd.Output()
+	if err != nil {
+		// No upstream configured, consider all commits as unpushed
+		countCmd := exec.Command("git", "rev-list", "--count", branch)
+		countCmd.Dir = m.repoRoot
+		countOutput, countErr := countCmd.Output()
+		if countErr != nil {
+			return false, 0, fmt.Errorf("failed to count commits: %w", countErr)
+		}
+		count := 0
+		fmt.Sscanf(strings.TrimSpace(string(countOutput)), "%d", &count)
+		return count > 0, count, nil
+	}
+
+	upstream := strings.TrimSpace(string(upstreamOutput))
+	
+	// Count commits ahead of upstream
+	cmd := exec.Command("git", "rev-list", "--count", fmt.Sprintf("%s..%s", upstream, branch))
+	cmd.Dir = m.repoRoot
+	
+	output, err := cmd.Output()
+	if err != nil {
+		return false, 0, fmt.Errorf("failed to check unpushed commits: %w", err)
+	}
+	
+	count := 0
+	fmt.Sscanf(strings.TrimSpace(string(output)), "%d", &count)
+	
+	return count > 0, count, nil
 }
