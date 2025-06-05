@@ -29,7 +29,7 @@ func NewInput(title string, prompts []string, defaults []string) InputModel {
 		input := textinput.New()
 		input.Placeholder = prompt
 		input.CharLimit = 200
-		input.Width = 50  // Set width to display placeholder properly
+		input.Width = 50 // Set width to display placeholder properly
 
 		if i < len(defaults) && defaults[i] != "" {
 			input.SetValue(defaults[i])

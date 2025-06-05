@@ -26,7 +26,7 @@ var listCmd = &cobra.Command{
 		}
 
 		// Interactive mode
-		model := ui.NewSelector(worktrees, "Git Worktrees", "view", false)
+		model := ui.NewSelector(worktrees, "Git Worktrees", "print path", true)
 		program := tea.NewProgram(model)
 
 		finalModel, err := program.Run()
@@ -35,12 +35,66 @@ var listCmd = &cobra.Command{
 		}
 
 		result := finalModel.(ui.SelectorModel).GetResult()
-		if result.Action == "select" {
-			fmt.Printf("Selected worktree: %s (%s)\n", result.Worktree.Path, result.Worktree.Branch)
+		switch result.Action {
+		case "select":
+			// Print the selected worktree path to stdout
+			fmt.Println(result.Worktree.Path)
+
+		case "create":
+			// Call existing new command
+			return newCmd.RunE(cmd, []string{})
+
+		case "delete":
+			// Call existing remove command with pre-selected worktree
+			return runRemoveWithSelectedWorktree(result.Worktree)
+
+		case "quit":
+			// Do nothing, just exit
 		}
 
 		return nil
 	},
+}
+
+// runRemoveWithSelectedWorktree runs remove command with a pre-selected worktree
+func runRemoveWithSelectedWorktree(selectedWorktree git.Worktree) error {
+	// Filter out current worktree (can't remove current worktree)
+	if selectedWorktree.IsCurrent {
+		return fmt.Errorf("cannot remove current worktree")
+	}
+
+	manager, err := git.NewManager()
+	if err != nil {
+		return fmt.Errorf("failed to initialize git manager: %w", err)
+	}
+
+	// Confirm removal
+	confirmModel := ui.NewConfirm(
+		"Confirm Removal",
+		fmt.Sprintf("Remove worktree at %s?", selectedWorktree.Path),
+	)
+	program := tea.NewProgram(confirmModel)
+
+	finalConfirmModel, err := program.Run()
+	if err != nil {
+		return fmt.Errorf("failed to run confirmation interface: %w", err)
+	}
+
+	confirmResult := finalConfirmModel.(ui.ConfirmModel).GetResult()
+	if confirmResult.Cancelled || !confirmResult.Confirmed {
+		fmt.Println("Removal cancelled")
+		return nil
+	}
+
+	// Remove the worktree
+	fmt.Printf("Removing worktree at '%s'...\n", selectedWorktree.Path)
+	err = manager.Remove(selectedWorktree.Path, false)
+	if err != nil {
+		return fmt.Errorf("failed to remove worktree: %w", err)
+	}
+
+	fmt.Printf("✅ Successfully removed worktree at '%s'\n", selectedWorktree.Path)
+	return nil
 }
 
 func init() {

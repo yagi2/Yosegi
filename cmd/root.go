@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/yagi2/yosegi/internal/config"
-	"github.com/yagi2/yosegi/internal/git"
 	"github.com/yagi2/yosegi/internal/ui"
 )
 
@@ -18,31 +16,8 @@ var rootCmd = &cobra.Command{
 It provides visual and intuitive commands to create, list, and manage git worktrees.`,
 	Version: "0.1.0",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		manager, err := git.NewManager()
-		if err != nil {
-			return fmt.Errorf("failed to initialize git manager: %w", err)
-		}
-
-		worktrees, err := manager.List()
-		if err != nil {
-			return fmt.Errorf("failed to list worktrees: %w", err)
-		}
-
-		// Interactive mode
-		model := ui.NewSelector(worktrees, "Git Worktrees", "view", false)
-		program := tea.NewProgram(model)
-
-		finalModel, err := program.Run()
-		if err != nil {
-			return fmt.Errorf("failed to run interactive interface: %w", err)
-		}
-
-		result := finalModel.(ui.SelectorModel).GetResult()
-		if result.Action == "select" {
-			fmt.Printf("Selected worktree: %s (%s)\n", result.Worktree.Path, result.Worktree.Branch)
-		}
-
-		return nil
+		// Use the same functionality as list command
+		return listCmd.RunE(cmd, args)
 	},
 }
 
