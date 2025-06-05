@@ -63,10 +63,9 @@ var removeCmd = &cobra.Command{
 
 		if result.Action == "remove" || result.Action == "delete" {
 			// Confirm removal
-			confirmModel := ui.NewInput(
+			confirmModel := ui.NewConfirm(
 				"Confirm Removal",
-				[]string{fmt.Sprintf("Type 'yes' to remove worktree at %s", result.Worktree.Path)},
-				[]string{""},
+				fmt.Sprintf("Remove worktree at %s?", result.Worktree.Path),
 			)
 			program := tea.NewProgram(confirmModel)
 
@@ -75,8 +74,8 @@ var removeCmd = &cobra.Command{
 				return fmt.Errorf("failed to run confirmation interface: %w", err)
 			}
 
-			confirmResult := finalConfirmModel.(ui.InputModel).GetResult()
-			if !confirmResult.Submitted || len(confirmResult.Values) == 0 || confirmResult.Values[0] != "yes" {
+			confirmResult := finalConfirmModel.(ui.ConfirmModel).GetResult()
+			if confirmResult.Cancelled || !confirmResult.Confirmed {
 				fmt.Println("Removal cancelled")
 				return nil
 			}
