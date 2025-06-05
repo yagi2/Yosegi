@@ -29,6 +29,7 @@ func NewInput(title string, prompts []string, defaults []string) InputModel {
 		input := textinput.New()
 		input.Placeholder = prompt
 		input.CharLimit = 200
+		input.Width = 50  // Set width to display placeholder properly
 
 		if i < len(defaults) && defaults[i] != "" {
 			input.SetValue(defaults[i])
@@ -104,9 +105,19 @@ func (m InputModel) View() string {
 
 	// Input fields
 	for i, input := range m.inputs {
+		// Extract label from placeholder
+		placeholder := input.Placeholder
+		label := placeholder
+		if idx := strings.Index(placeholder, " ("); idx > 0 {
+			label = placeholder[:idx]
+		}
+
+		// Show label above input
+		b.WriteString(NormalStyle.Render(label + ":"))
+		b.WriteString("\n")
 		b.WriteString(input.View())
 		if i < len(m.inputs)-1 {
-			b.WriteString("\n")
+			b.WriteString("\n\n")
 		}
 	}
 

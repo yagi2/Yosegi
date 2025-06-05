@@ -53,12 +53,12 @@ var newCmd = &cobra.Command{
 			defaults := []string{}
 
 			if branch == "" {
-				prompts = append(prompts, "Branch name")
+				prompts = append(prompts, "Branch name (e.g., feature/new-feature)")
 				defaults = append(defaults, "")
 			}
 
 			if worktreePath == "" {
-				prompts = append(prompts, "Worktree path")
+				prompts = append(prompts, "Worktree directory path (e.g., ../feature-branch)")
 				if branch != "" {
 					defaults = append(defaults, filepath.Join("..", branch))
 				} else {
