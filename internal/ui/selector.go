@@ -15,6 +15,7 @@ type keyMap struct {
 	Enter  key.Binding
 	Quit   key.Binding
 	Delete key.Binding
+	Create key.Binding
 }
 
 var keys = keyMap{
@@ -38,6 +39,10 @@ var keys = keyMap{
 		key.WithKeys("d"),
 		key.WithHelp("d", "delete"),
 	),
+	Create: key.NewBinding(
+		key.WithKeys("c"),
+		key.WithHelp("c", "create new"),
+	),
 }
 
 type SelectorModel struct {
@@ -52,7 +57,7 @@ type SelectorModel struct {
 
 type SelectionResult struct {
 	Worktree git.Worktree
-	Action   string // "select", "delete", "quit"
+	Action   string // "select", "delete", "create", "quit"
 }
 
 func NewSelector(worktrees []git.Worktree, title, action string, allowDelete bool) SelectorModel {
@@ -90,6 +95,7 @@ func (m SelectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keys.Enter):
 			if len(m.worktrees) > 0 {
 				m.selectedPath = m.worktrees[m.cursor].Path
+				m.action = "select"
 				return m, tea.Quit
 			}
 
@@ -99,6 +105,10 @@ func (m SelectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.action = "delete"
 				return m, tea.Quit
 			}
+
+		case key.Matches(msg, keys.Create):
+			m.action = "create"
+			return m, tea.Quit
 		}
 	}
 
@@ -156,7 +166,7 @@ func (m SelectorModel) View() string {
 	// Help text
 	b.WriteString("\n")
 	helpText := []string{
-		"↑/k up", "↓/j down", "enter " + m.action,
+		"↑/k up", "↓/j down", "enter " + m.action, "c create",
 	}
 	if m.allowDelete {
 		helpText = append(helpText, "d delete")
@@ -171,6 +181,11 @@ func (m SelectorModel) View() string {
 func (m SelectorModel) GetResult() SelectionResult {
 	if m.quitting && m.selectedPath == "" {
 		return SelectionResult{Action: "quit"}
+	}
+
+	// Handle create action (no specific worktree needed)
+	if m.action == "create" {
+		return SelectionResult{Action: "create"}
 	}
 
 	for _, wt := range m.worktrees {
