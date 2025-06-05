@@ -128,6 +128,12 @@ func (m *manager) Add(path, branch string, createBranch bool) error {
 
 // Remove removes a worktree
 func (m *manager) Remove(path string, force bool) error {
+	// First, try to get the absolute path
+	absPath, err := filepath.Abs(path)
+	if err == nil {
+		path = absPath
+	}
+
 	args := []string{"worktree", "remove"}
 	if force {
 		args = append(args, "--force")
@@ -136,8 +142,52 @@ func (m *manager) Remove(path string, force bool) error {
 
 	cmd := exec.Command("git", args...)
 	cmd.Dir = m.repoRoot
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to remove worktree: %w", err)
+	
+	// Get detailed error output for debugging
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		errorMsg := string(output)
+		
+		// Common error patterns and solutions
+		if strings.Contains(errorMsg, "is dirty") {
+			return fmt.Errorf("worktree contains uncommitted changes. Use --force flag to remove anyway: %s", errorMsg)
+		}
+		
+		if strings.Contains(errorMsg, "does not exist") {
+			// Worktree might be already removed but git doesn't know
+			// Try to prune first
+			pruneCmd := exec.Command("git", "worktree", "prune")
+			pruneCmd.Dir = m.repoRoot
+			pruneOutput, pruneErr := pruneCmd.CombinedOutput()
+			if pruneErr == nil {
+				// Check if the worktree still exists after pruning
+				listCmd := exec.Command("git", "worktree", "list")
+				listCmd.Dir = m.repoRoot
+				listOutput, _ := listCmd.Output()
+				if !strings.Contains(string(listOutput), path) {
+					// Worktree was successfully pruned
+					return nil
+				}
+				// Try remove again after pruning
+				cmd := exec.Command("git", args...)
+				cmd.Dir = m.repoRoot
+				output, err = cmd.CombinedOutput()
+				if err == nil {
+					return nil
+				}
+			} else {
+				return fmt.Errorf("failed to prune worktrees: %s", string(pruneOutput))
+			}
+		}
+		
+		if strings.Contains(errorMsg, "is locked") {
+			// Worktree is locked, need force flag
+			if !force {
+				return fmt.Errorf("worktree is locked. Use --force flag to remove anyway: %s", errorMsg)
+			}
+		}
+		
+		return fmt.Errorf("failed to remove worktree: %s", errorMsg)
 	}
 	return nil
 }

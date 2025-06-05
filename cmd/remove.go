@@ -61,7 +61,7 @@ var removeCmd = &cobra.Command{
 			return nil
 		}
 
-		if result.Action == "remove" || result.Action == "delete" {
+		if result.Action == "remove" || result.Action == "delete" || result.Action == "select" {
 			// Confirm removal
 			confirmModel := ui.NewConfirm(
 				"Confirm Removal",
