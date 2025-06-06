@@ -95,78 +95,99 @@ func getConfigPath() (string, error) {
 
 // Load loads the configuration from file or returns default config
 func Load() (*Config, error) {
-	configPath, err := getConfigPath()
+	config, err := loadConfigFromFile()
 	if err != nil {
 		return defaultConfig(), nil
+	}
+
+	mergeWithDefaults(config)
+	return config, nil
+}
+
+// loadConfigFromFile loads and parses the configuration file
+func loadConfigFromFile() (*Config, error) {
+	configPath, err := getConfigPath()
+	if err != nil {
+		return nil, err
 	}
 
 	// If config file doesn't exist, return default config
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return defaultConfig(), nil
+		return nil, os.ErrNotExist
 	}
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return defaultConfig(), nil
+		return nil, err
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		return defaultConfig(), nil
+		return nil, err
 	}
 
-	// Merge with defaults for missing fields
+	return &config, nil
+}
+
+// mergeWithDefaults merges the loaded config with default values for missing fields
+func mergeWithDefaults(config *Config) {
 	defaultCfg := defaultConfig()
+
 	if config.DefaultWorktreePath == "" {
 		config.DefaultWorktreePath = defaultCfg.DefaultWorktreePath
 	}
 
-	// Merge theme fields individually
-	if config.Theme.Primary == "" {
-		config.Theme.Primary = defaultCfg.Theme.Primary
-	}
-	if config.Theme.Secondary == "" {
-		config.Theme.Secondary = defaultCfg.Theme.Secondary
-	}
-	if config.Theme.Success == "" {
-		config.Theme.Success = defaultCfg.Theme.Success
-	}
-	if config.Theme.Warning == "" {
-		config.Theme.Warning = defaultCfg.Theme.Warning
-	}
-	if config.Theme.Error == "" {
-		config.Theme.Error = defaultCfg.Theme.Error
-	}
-	if config.Theme.Muted == "" {
-		config.Theme.Muted = defaultCfg.Theme.Muted
-	}
-	if config.Theme.Text == "" {
-		config.Theme.Text = defaultCfg.Theme.Text
-	}
-
-	// Merge git config fields
-	if config.Git.DefaultRemote == "" {
-		config.Git.DefaultRemote = defaultCfg.Git.DefaultRemote
-	}
-	if config.Git.ExcludePatterns == nil {
-		config.Git.ExcludePatterns = defaultCfg.Git.ExcludePatterns
-	}
-
-	// Merge UI config fields (need to check if they were actually set)
-	// For boolean fields, we need to check if they were explicitly set
-	// This is a limitation of YAML unmarshaling - we can't distinguish between
-	// false and unset. For now, we'll use defaults for uninitialized structs.
-	if config.UI.MaxPathLength == 0 {
-		config.UI.MaxPathLength = defaultCfg.UI.MaxPathLength
-	}
-	// Note: ShowIcons and ConfirmDelete will use Go's zero values (false)
-	// if not explicitly set in config. This is expected behavior.
+	mergeThemeConfig(&config.Theme, &defaultCfg.Theme)
+	mergeGitConfig(&config.Git, &defaultCfg.Git)
+	mergeUIConfig(&config.UI, &defaultCfg.UI)
 
 	if config.Aliases == nil {
 		config.Aliases = defaultCfg.Aliases
 	}
+}
 
-	return &config, nil
+// mergeThemeConfig merges theme configuration with defaults
+func mergeThemeConfig(config, defaultCfg *ThemeConfig) {
+	if config.Primary == "" {
+		config.Primary = defaultCfg.Primary
+	}
+	if config.Secondary == "" {
+		config.Secondary = defaultCfg.Secondary
+	}
+	if config.Success == "" {
+		config.Success = defaultCfg.Success
+	}
+	if config.Warning == "" {
+		config.Warning = defaultCfg.Warning
+	}
+	if config.Error == "" {
+		config.Error = defaultCfg.Error
+	}
+	if config.Muted == "" {
+		config.Muted = defaultCfg.Muted
+	}
+	if config.Text == "" {
+		config.Text = defaultCfg.Text
+	}
+}
+
+// mergeGitConfig merges git configuration with defaults
+func mergeGitConfig(config, defaultCfg *GitConfig) {
+	if config.DefaultRemote == "" {
+		config.DefaultRemote = defaultCfg.DefaultRemote
+	}
+	if config.ExcludePatterns == nil {
+		config.ExcludePatterns = defaultCfg.ExcludePatterns
+	}
+}
+
+// mergeUIConfig merges UI configuration with defaults
+func mergeUIConfig(config, defaultCfg *UIConfig) {
+	if config.MaxPathLength == 0 {
+		config.MaxPathLength = defaultCfg.MaxPathLength
+	}
+	// Note: ShowIcons and ConfirmDelete will use Go's zero values (false)
+	// if not explicitly set in config. This is expected behavior.
 }
 
 // Save saves the configuration to file

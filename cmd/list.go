@@ -101,7 +101,6 @@ var listCmd = &cobra.Command{
 
 // runRemoveWithSelectedWorktree runs remove command with a pre-selected worktree
 func runRemoveWithSelectedWorktree(selectedWorktree git.Worktree) error {
-	// Filter out current worktree (can't remove current worktree)
 	if selectedWorktree.IsCurrent {
 		return fmt.Errorf("cannot remove current worktree")
 	}
@@ -111,97 +110,130 @@ func runRemoveWithSelectedWorktree(selectedWorktree git.Worktree) error {
 		return fmt.Errorf("failed to initialize git manager: %w", err)
 	}
 
-	// Confirm removal
-	confirmModel := ui.NewConfirm(
-		"Confirm Removal",
-		fmt.Sprintf("Remove worktree at %s?", selectedWorktree.Path),
-	)
-	program := tea.NewProgram(confirmModel)
-
-	finalConfirmModel, err := program.Run()
-	if err != nil {
-		return fmt.Errorf("failed to run confirmation interface: %w", err)
-	}
-
-	confirmResult := finalConfirmModel.(ui.ConfirmModel).GetResult()
-	if confirmResult.Cancelled || !confirmResult.Confirmed {
+	// Confirm worktree removal
+	if !confirmWorktreeRemoval(selectedWorktree.Path) {
 		fmt.Println("Removal cancelled")
 		return nil
 	}
 
 	// Remove the worktree
-	fmt.Printf("Removing worktree at '%s'...\n", selectedWorktree.Path)
-	err = manager.Remove(selectedWorktree.Path, false)
-	if err != nil {
-		return fmt.Errorf("failed to remove worktree: %w", err)
+	if err := removeWorktree(manager, selectedWorktree.Path); err != nil {
+		return err
 	}
 
-	fmt.Printf("✅ Successfully removed worktree at '%s'\n", selectedWorktree.Path)
+	// Handle branch deletion if applicable
+	return handleBranchDeletion(manager, selectedWorktree.Branch)
+}
 
-	// Check if we should also delete the branch
+// confirmWorktreeRemoval shows confirmation dialog for worktree removal
+func confirmWorktreeRemoval(path string) bool {
+	confirmModel := ui.NewConfirm(
+		"Confirm Removal",
+		fmt.Sprintf("Remove worktree at %s?", path),
+	)
+	program := tea.NewProgram(confirmModel)
+
+	finalModel, err := program.Run()
+	if err != nil {
+		return false
+	}
+
+	result := finalModel.(ui.ConfirmModel).GetResult()
+	return !result.Cancelled && result.Confirmed
+}
+
+// removeWorktree removes the specified worktree
+func removeWorktree(manager git.Manager, path string) error {
+	fmt.Printf("Removing worktree at '%s'...\n", path)
+	if err := manager.Remove(path, false); err != nil {
+		return fmt.Errorf("failed to remove worktree: %w", err)
+	}
+	fmt.Printf("✅ Successfully removed worktree at '%s'\n", path)
+	return nil
+}
+
+// handleBranchDeletion handles the branch deletion logic
+func handleBranchDeletion(manager git.Manager, branch string) error {
+	// Skip branch deletion for special branches
+	if branch == "(detached)" || branch == "(bare)" {
+		return nil
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		cfg = &config.Config{}
 	}
 
-	// Skip branch deletion for detached HEAD or bare repository
-	if selectedWorktree.Branch == "(detached)" || selectedWorktree.Branch == "(bare)" {
-		return nil
+	deleteBranch, err := shouldDeleteBranch(manager, branch, cfg.Git.DeleteBranchOnWorktreeRemove)
+	if err != nil {
+		return err
 	}
 
-	// Determine if we should delete the branch
-	deleteBranch := cfg.Git.DeleteBranchOnWorktreeRemove
-
-	// Check for unpushed commits
-	hasUnpushed, unpushedCount, err := manager.HasUnpushedCommits(selectedWorktree.Branch)
-	if err == nil && hasUnpushed {
-		// Show warning and ask for confirmation
-		warningModel := ui.NewConfirm(
-			"Branch Deletion Warning",
-			fmt.Sprintf("Branch '%s' has %d unpushed commits. Delete branch anyway?", selectedWorktree.Branch, unpushedCount),
-		)
-		program := tea.NewProgram(warningModel)
-
-		finalWarningModel, err := program.Run()
-		if err != nil {
-			return fmt.Errorf("failed to run warning dialog: %w", err)
-		}
-
-		warningResult := finalWarningModel.(ui.ConfirmModel).GetResult()
-		if warningResult.Cancelled || !warningResult.Confirmed {
-			deleteBranch = false
-		} else {
-			deleteBranch = true
-		}
-	} else if !deleteBranch {
-		// Ask if user wants to delete the branch (if not configured to auto-delete)
-		confirmBranchModel := ui.NewConfirm(
-			"Delete Branch",
-			fmt.Sprintf("Also delete the local branch '%s'?", selectedWorktree.Branch),
-		)
-		program := tea.NewProgram(confirmBranchModel)
-
-		finalBranchModel, err := program.Run()
-		if err != nil {
-			return fmt.Errorf("failed to run branch deletion dialog: %w", err)
-		}
-
-		branchResult := finalBranchModel.(ui.ConfirmModel).GetResult()
-		deleteBranch = !branchResult.Cancelled && branchResult.Confirmed
-	}
-
-	// Delete the branch if confirmed
 	if deleteBranch {
-		fmt.Printf("Deleting branch '%s'...\n", selectedWorktree.Branch)
-		err = manager.DeleteBranch(selectedWorktree.Branch, hasUnpushed)
-		if err != nil {
-			// Don't fail the whole operation if branch deletion fails
-			fmt.Printf("⚠️  Warning: Failed to delete branch: %v\n", err)
-		} else {
-			fmt.Printf("✅ Successfully deleted branch '%s'\n", selectedWorktree.Branch)
-		}
+		return deleteBranchWithConfirmation(manager, branch)
+	}
+	return nil
+}
+
+// shouldDeleteBranch determines if the branch should be deleted
+func shouldDeleteBranch(manager git.Manager, branch string, autoDelete bool) (bool, error) {
+	hasUnpushed, unpushedCount, err := manager.HasUnpushedCommits(branch)
+	if err == nil && hasUnpushed {
+		return confirmUnpushedBranchDeletion(branch, unpushedCount), nil
 	}
 
+	if !autoDelete {
+		return confirmBranchDeletion(branch), nil
+	}
+
+	return autoDelete, nil
+}
+
+// confirmUnpushedBranchDeletion shows warning for unpushed commits
+func confirmUnpushedBranchDeletion(branch string, unpushedCount int) bool {
+	warningModel := ui.NewConfirm(
+		"Branch Deletion Warning",
+		fmt.Sprintf("Branch '%s' has %d unpushed commits. Delete branch anyway?", branch, unpushedCount),
+	)
+	program := tea.NewProgram(warningModel)
+
+	finalModel, err := program.Run()
+	if err != nil {
+		return false
+	}
+
+	result := finalModel.(ui.ConfirmModel).GetResult()
+	return !result.Cancelled && result.Confirmed
+}
+
+// confirmBranchDeletion asks user if they want to delete the branch
+func confirmBranchDeletion(branch string) bool {
+	confirmModel := ui.NewConfirm(
+		"Delete Branch",
+		fmt.Sprintf("Also delete the local branch '%s'?", branch),
+	)
+	program := tea.NewProgram(confirmModel)
+
+	finalModel, err := program.Run()
+	if err != nil {
+		return false
+	}
+
+	result := finalModel.(ui.ConfirmModel).GetResult()
+	return !result.Cancelled && result.Confirmed
+}
+
+// deleteBranchWithConfirmation deletes the branch and shows result
+func deleteBranchWithConfirmation(manager git.Manager, branch string) error {
+	fmt.Printf("Deleting branch '%s'...\n", branch)
+	hasUnpushed, _, _ := manager.HasUnpushedCommits(branch)
+
+	if err := manager.DeleteBranch(branch, hasUnpushed); err != nil {
+		fmt.Printf("⚠️  Warning: Failed to delete branch: %v\n", err)
+		return nil // Don't fail the whole operation
+	}
+
+	fmt.Printf("✅ Successfully deleted branch '%s'\n", branch)
 	return nil
 }
 

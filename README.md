@@ -26,7 +26,7 @@ Yosegi is a cross-platform CLI tool designed for the modern "Vibe Coding" era, p
 
 ## Installation
 
-### Go Install (Recommended)
+### Go Install
 
 If you have Go 1.24 or later installed:
 
@@ -58,27 +58,6 @@ Download the appropriate binary for your platform from the [releases page](https
 - **Linux**: `yosegi_Linux_x86_64.tar.gz` (AMD64), `yosegi_Linux_arm64.tar.gz` (ARM64)
 - **macOS**: `yosegi_Darwin_x86_64.tar.gz` (Intel), `yosegi_Darwin_arm64.tar.gz` (Apple Silicon)
 - **Windows**: `yosegi_Windows_x86_64.zip` (AMD64), `yosegi_Windows_arm64.zip` (ARM64)
-
-
-### Package Managers
-
-#### Homebrew (Coming Soon)
-```bash
-# Coming soon
-brew install yagi2/tap/yosegi
-```
-
-#### Chocolatey (Coming Soon)
-```powershell
-# Coming soon
-choco install yosegi
-```
-
-#### Scoop (Coming Soon)
-```powershell
-# Coming soon
-scoop install yosegi
-```
 
 ### Build from Source
 
