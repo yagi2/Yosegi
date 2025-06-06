@@ -24,7 +24,7 @@ func DetectTTYCapability() TTYCapability {
 		if runtime.GOOS != "windows" {
 			// Try to open /dev/tty
 			if tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
-				tty.Close()
+				_ = tty.Close()
 				// We can access TTY directly - basic control available
 				return BasicTTYControl
 			}
@@ -63,7 +63,7 @@ func GetTTYFiles(capability TTYCapability) (*os.File, *os.File, func(), error) {
 			if err != nil {
 				return nil, nil, nil, err
 			}
-			cleanup := func() { tty.Close() }
+			cleanup := func() { _ = tty.Close() }
 			return tty, tty, cleanup, nil
 		} else {
 			// Windows: use stdin/stderr

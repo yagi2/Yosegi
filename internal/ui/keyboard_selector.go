@@ -159,11 +159,11 @@ func (k *KeyboardSelector) readKey() (string, error) {
 // render draws the current state of the selector
 func (k *KeyboardSelector) render() {
 	// Clear screen and move cursor to top
-	fmt.Fprint(k.output, "\033[2J\033[H")
+	_, _ = fmt.Fprint(k.output, "\033[2J\033[H")
 
 	// Title
-	fmt.Fprintf(k.output, "\033[1m🌲 Git Worktrees\033[0m\n")
-	fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
+	_, _ = fmt.Fprintf(k.output, "\033[1m🌲 Git Worktrees\033[0m\n")
+	_, _ = fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
 
 	// Worktree list
 	for i, wt := range k.worktrees {
@@ -174,18 +174,18 @@ func (k *KeyboardSelector) render() {
 
 		// Highlight current selection
 		if i == k.cursor {
-			fmt.Fprintf(k.output, "\033[7m") // Reverse video
+			_, _ = fmt.Fprintf(k.output, "\033[7m") // Reverse video
 		}
 
-		fmt.Fprintf(k.output, "%s%s (%s)\033[0m\n", status, wt.Path, wt.Branch)
+		_, _ = fmt.Fprintf(k.output, "%s%s (%s)\033[0m\n", status, wt.Path, wt.Branch)
 	}
 
 	// Help text
-	fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
-	fmt.Fprintf(k.output, "\033[2m↑/k up  ↓/j down  Enter select  q quit\033[0m\n")
+	_, _ = fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
+	_, _ = fmt.Fprintf(k.output, "\033[2m↑/k up  ↓/j down  Enter select  q quit\033[0m\n")
 }
 
 // clearScreen clears the screen
 func (k *KeyboardSelector) clearScreen() {
-	fmt.Fprint(k.output, "\033[2J\033[H")
+	_, _ = fmt.Fprint(k.output, "\033[2J\033[H")
 }
