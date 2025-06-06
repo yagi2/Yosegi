@@ -9,9 +9,9 @@ import (
 func TestSmartSelectWorktreeEmptyList(t *testing.T) {
 	// Test with empty worktree list
 	var worktrees []git.Worktree
-	
+
 	result, err := SmartSelectWorktree(worktrees)
-	
+
 	if err == nil {
 		t.Error("Expected error for empty worktree list")
 	}
@@ -94,24 +94,24 @@ func TestFallbackSelector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := fallbackSelector(tt.worktrees)
-			
+
 			if (err != nil) != tt.expectErr {
 				t.Errorf("fallbackSelector() error = %v, expectErr %v", err, tt.expectErr)
 				return
 			}
-			
+
 			if tt.expectErr {
 				if result != nil {
 					t.Error("Expected nil result for error case")
 				}
 				return
 			}
-			
+
 			if result == nil {
 				t.Error("Expected non-nil result for success case")
 				return
 			}
-			
+
 			if tt.expectIdx >= 0 && tt.expectIdx < len(tt.worktrees) {
 				expected := &tt.worktrees[tt.expectIdx]
 				if result.Path != expected.Path {
@@ -133,34 +133,34 @@ func TestFallbackSelectorLogic(t *testing.T) {
 			{Path: "/non-current-1", Branch: "feature-1", IsCurrent: false},
 			{Path: "/non-current-2", Branch: "feature-2", IsCurrent: false},
 		}
-		
+
 		result, err := fallbackSelector(worktrees)
-		
+
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		
+
 		if result.Path != "/non-current-1" {
 			t.Errorf("Expected first non-current worktree, got %s", result.Path)
 		}
-		
+
 		if result.IsCurrent {
 			t.Error("Selected worktree should not be current")
 		}
 	})
-	
+
 	t.Run("AllCurrentFallsBackToFirst", func(t *testing.T) {
 		worktrees := []git.Worktree{
 			{Path: "/first", Branch: "main", IsCurrent: true},
 			{Path: "/second", Branch: "feature", IsCurrent: true},
 		}
-		
+
 		result, err := fallbackSelector(worktrees)
-		
+
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		
+
 		if result.Path != "/first" {
 			t.Errorf("Expected first worktree when all current, got %s", result.Path)
 		}
@@ -180,10 +180,10 @@ func TestSmartSelectWorktreeIntegration(t *testing.T) {
 	// Integration test - this will use actual TTY detection
 	// The specific selector used depends on the test environment
 	worktrees := createSampleWorktrees()
-	
+
 	// This test verifies the function doesn't panic and returns a result
 	result, err := SmartSelectWorktree(worktrees)
-	
+
 	// In CI/testing environment, this will likely use fallbackSelector
 	// which should return the first non-current worktree
 	if err != nil {
@@ -191,12 +191,12 @@ func TestSmartSelectWorktreeIntegration(t *testing.T) {
 		t.Logf("SmartSelectWorktree failed (expected in CI): %v", err)
 		return
 	}
-	
+
 	if result == nil {
 		t.Error("Expected non-nil result when no error")
 		return
 	}
-	
+
 	// Verify we got a valid worktree
 	found := false
 	for _, wt := range worktrees {
@@ -205,7 +205,7 @@ func TestSmartSelectWorktreeIntegration(t *testing.T) {
 			break
 		}
 	}
-	
+
 	if !found {
 		t.Error("Result worktree not found in original list")
 	}
@@ -214,7 +214,7 @@ func TestSmartSelectWorktreeIntegration(t *testing.T) {
 // Benchmark tests
 func BenchmarkFallbackSelector(b *testing.B) {
 	worktrees := createSampleWorktrees()
-	
+
 	b.ResetTimer()
 	for range b.N {
 		_, _ = fallbackSelector(worktrees)
@@ -223,7 +223,7 @@ func BenchmarkFallbackSelector(b *testing.B) {
 
 func BenchmarkSmartSelectWorktree(b *testing.B) {
 	worktrees := createSampleWorktrees()
-	
+
 	b.ResetTimer()
 	for range b.N {
 		_, _ = SmartSelectWorktree(worktrees)

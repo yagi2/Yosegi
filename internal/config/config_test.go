@@ -147,7 +147,7 @@ func TestGetConfigPath(t *testing.T) {
 		if err := os.MkdirAll(mockHome, 0755); err != nil {
 			t.Fatalf("Failed to create mock home: %v", err)
 		}
-		
+
 		// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
 		originalHome = os.Getenv("HOME")
 		originalUserProfile = os.Getenv("USERPROFILE")
@@ -158,8 +158,12 @@ func TestGetConfigPath(t *testing.T) {
 			t.Fatalf("Failed to set USERPROFILE: %v", err)
 		}
 		defer func() {
-			os.Setenv("HOME", originalHome)
-			os.Setenv("USERPROFILE", originalUserProfile)
+			if err := os.Setenv("HOME", originalHome); err != nil {
+				t.Logf("Failed to restore HOME: %v", err)
+			}
+			if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+				t.Logf("Failed to restore USERPROFILE: %v", err)
+			}
 		}()
 
 		configPath, err := getConfigPath()
@@ -377,7 +381,7 @@ func TestSaveConfig(t *testing.T) {
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
-	
+
 	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
@@ -388,8 +392,12 @@ func TestSaveConfig(t *testing.T) {
 		t.Fatalf("Failed to set USERPROFILE: %v", err)
 	}
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			t.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 
 	// Create a custom config
@@ -474,7 +482,7 @@ func TestInitConfig(t *testing.T) {
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
-	
+
 	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
@@ -485,8 +493,12 @@ func TestInitConfig(t *testing.T) {
 		t.Fatalf("Failed to set USERPROFILE: %v", err)
 	}
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			t.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 
 	// Initialize config
@@ -589,8 +601,12 @@ func TestConfigEdgeCases(t *testing.T) {
 			t.Fatalf("Failed to set USERPROFILE: %v", err)
 		}
 		defer func() {
-			os.Setenv("HOME", originalHome)
-			os.Setenv("USERPROFILE", originalUserProfile)
+			if err := os.Setenv("HOME", originalHome); err != nil {
+				t.Logf("Failed to restore HOME: %v", err)
+			}
+			if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+				t.Logf("Failed to restore USERPROFILE: %v", err)
+			}
 		}()
 
 		cfg := defaultConfig()
@@ -713,8 +729,12 @@ func TestGetConfigPathErrors(t *testing.T) {
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			t.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 
 	if err := os.Unsetenv("HOME"); err != nil {
@@ -772,8 +792,12 @@ func TestSaveErrors(t *testing.T) {
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			t.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			t.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 
 	// Set both HOME (Unix) and USERPROFILE (Windows) to invalid paths
@@ -890,8 +914,12 @@ aliases:
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			b.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			b.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 	if err := os.Setenv("HOME", tmpDir); err != nil {
 		b.Fatalf("Failed to set HOME: %v", err)
@@ -930,8 +958,12 @@ func BenchmarkSaveConfig(b *testing.B) {
 	originalHome = os.Getenv("HOME")
 	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		os.Setenv("HOME", originalHome)
-		os.Setenv("USERPROFILE", originalUserProfile)
+		if err := os.Setenv("HOME", originalHome); err != nil {
+			b.Logf("Failed to restore HOME: %v", err)
+		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			b.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 	if err := os.Setenv("HOME", tmpDir); err != nil {
 		b.Fatalf("Failed to set HOME: %v", err)

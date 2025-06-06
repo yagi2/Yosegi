@@ -14,9 +14,9 @@ func TestSimpleSelectWorktreeEmptyList(t *testing.T) {
 	var worktrees []git.Worktree
 	var output bytes.Buffer
 	var input bytes.Buffer
-	
+
 	result, err := simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{&input})
-	
+
 	if err == nil {
 		t.Error("Expected error for empty worktree list")
 	}
@@ -34,7 +34,7 @@ func TestSimpleSelectWorktreeValidSelection(t *testing.T) {
 		{Path: "/path/2", Branch: "feature", IsCurrent: false},
 		{Path: "/path/3", Branch: "hotfix", IsCurrent: false},
 	}
-	
+
 	tests := []struct {
 		name      string
 		input     string
@@ -77,14 +77,14 @@ func TestSimpleSelectWorktreeValidSelection(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var output bytes.Buffer
 			input := &mockStringReader{strings.NewReader(tt.input)}
-			
+
 			result, err := simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
-			
+
 			if (err != nil) != tt.expectErr {
 				t.Errorf("SimpleSelectWorktree() error = %v, expectErr %v", err, tt.expectErr)
 				return
 			}
-			
+
 			if tt.expectErr {
 				if err.Error() != "selection cancelled" {
 					t.Errorf("Expected 'selection cancelled' error, got: %s", err.Error())
@@ -94,12 +94,12 @@ func TestSimpleSelectWorktreeValidSelection(t *testing.T) {
 				}
 				return
 			}
-			
+
 			if result == nil {
 				t.Error("Expected non-nil result for valid selection")
 				return
 			}
-			
+
 			expected := &worktrees[tt.expectIdx]
 			if result.Path != expected.Path {
 				t.Errorf("Expected worktree path %s, got %s", expected.Path, result.Path)
@@ -107,7 +107,7 @@ func TestSimpleSelectWorktreeValidSelection(t *testing.T) {
 			if result.Branch != expected.Branch {
 				t.Errorf("Expected worktree branch %s, got %s", expected.Branch, result.Branch)
 			}
-			
+
 			// Check that UI was displayed
 			outputStr := output.String()
 			if !strings.Contains(outputStr, "🌲 Git Worktrees:") {
@@ -125,7 +125,7 @@ func TestSimpleSelectWorktreeInvalidInput(t *testing.T) {
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 		{Path: "/path/2", Branch: "feature", IsCurrent: false},
 	}
-	
+
 	tests := []struct {
 		name  string
 		input string
@@ -152,19 +152,19 @@ func TestSimpleSelectWorktreeInvalidInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var output bytes.Buffer
 			input := &mockStringReader{strings.NewReader(tt.input)}
-			
+
 			result, err := simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
-			
+
 			if err != nil {
 				t.Errorf("Expected successful selection after retry, got error: %v", err)
 				return
 			}
-			
+
 			if result == nil {
 				t.Error("Expected non-nil result after valid selection")
 				return
 			}
-			
+
 			// Check that error messages were displayed
 			outputStr := output.String()
 			if !strings.Contains(outputStr, "Invalid") {
@@ -179,34 +179,34 @@ func TestSimpleSelectWorktreeDisplayFormat(t *testing.T) {
 		{Path: "/repo/main", Branch: "main", IsCurrent: true},
 		{Path: "/repo/feature", Branch: "feature-branch", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	input := &mockStringReader{strings.NewReader("q\n")} // Quit immediately
-	
+
 	_, _ = simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
-	
+
 	outputStr := output.String()
-	
+
 	// Check header
 	if !strings.Contains(outputStr, "🌲 Git Worktrees:") {
 		t.Error("Expected tree emoji and header")
 	}
-	
+
 	// Check separator lines
 	if !strings.Contains(outputStr, strings.Repeat("-", 60)) {
 		t.Error("Expected separator lines")
 	}
-	
+
 	// Check current worktree indicator
 	if !strings.Contains(outputStr, "* 1) /repo/main (main)") {
 		t.Error("Expected current worktree to be marked with asterisk")
 	}
-	
+
 	// Check non-current worktree
 	if !strings.Contains(outputStr, "  2) /repo/feature (feature-branch)") {
 		t.Error("Expected non-current worktree to be displayed properly")
 	}
-	
+
 	// Check prompt
 	if !strings.Contains(outputStr, "Select worktree (1-2) or 'q' to quit:") {
 		t.Error("Expected selection prompt with correct range")
@@ -217,13 +217,13 @@ func TestSimpleSelectWorktreeIOError(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	// Use an errorReader that returns EOF immediately
 	input := &errorReader{err: io.EOF}
-	
+
 	result, err := simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
-	
+
 	if err == nil {
 		t.Error("Expected error when input fails")
 	}
@@ -242,7 +242,6 @@ type mockFile struct {
 
 func (m *mockFile) Fd() uintptr { return 0 }
 
-
 // mockStringReader wraps strings.Reader to implement io.ReadWriter
 type mockStringReader struct {
 	*strings.Reader
@@ -257,10 +256,10 @@ func TestSimpleSelectWorktreeWrapper(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/test/path", Branch: "main", IsCurrent: false},
 	}
-	
+
 	// This will fail in test environment, but covers the wrapper function
 	result, err := SimpleSelectWorktree(worktrees, os.Stderr, os.Stdin)
-	
+
 	// Should fail due to type conversion (*os.File expected)
 	if err == nil {
 		t.Logf("SimpleSelectWorktree unexpectedly succeeded: %v", result)
@@ -277,7 +276,7 @@ func BenchmarkSimpleSelectWorktreeDisplay(b *testing.B) {
 		{Path: "/repo/feature-2", Branch: "feature-2", IsCurrent: false},
 		{Path: "/repo/hotfix", Branch: "hotfix", IsCurrent: false},
 	}
-	
+
 	b.ResetTimer()
 	for range b.N {
 		var output bytes.Buffer

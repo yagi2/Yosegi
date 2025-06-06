@@ -13,7 +13,7 @@ import (
 // Version information (set by main.go)
 var (
 	version = "dev"
-	commit  = "unknown" 
+	commit  = "unknown"
 	date    = "unknown"
 	builtBy = "unknown"
 )
@@ -42,10 +42,10 @@ func SetVersionInfo(v, c, d, b string) {
 // getVersionString returns a formatted version string
 func getVersionString() string {
 	if version == "dev" {
-		return fmt.Sprintf("dev (commit: %s, built: %s, go: %s)", 
+		return fmt.Sprintf("dev (commit: %s, built: %s, go: %s)",
 			commit, date, runtime.Version())
 	}
-	return fmt.Sprintf("%s (commit: %s, built: %s, by: %s, go: %s)", 
+	return fmt.Sprintf("%s (commit: %s, built: %s, by: %s, go: %s)",
 		version, commit, date, builtBy, runtime.Version())
 }
 
