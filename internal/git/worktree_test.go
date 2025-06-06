@@ -453,7 +453,7 @@ func BenchmarkFindGitRoot(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := FindGitRoot(nestedDir)
 		if err != nil {
 			b.Errorf("FindGitRoot failed: %v", err)
@@ -481,7 +481,7 @@ branch refs/heads/hotfix/urgent
 `
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := parseWorktreeList(input)
 		if err != nil {
 			b.Errorf("parseWorktreeList failed: %v", err)

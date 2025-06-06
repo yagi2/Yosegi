@@ -515,7 +515,7 @@ func TestInitConfig(t *testing.T) {
 func TestConfigStructValidation(t *testing.T) {
 	// Test that all config struct fields have yaml tags
 	configType := reflect.TypeOf(Config{})
-	for i := 0; i < configType.NumField(); i++ {
+	for i := range configType.NumField() {
 		field := configType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -525,7 +525,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test ThemeConfig struct
 	themeType := reflect.TypeOf(ThemeConfig{})
-	for i := 0; i < themeType.NumField(); i++ {
+	for i := range themeType.NumField() {
 		field := themeType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -535,7 +535,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test GitConfig struct
 	gitType := reflect.TypeOf(GitConfig{})
-	for i := 0; i < gitType.NumField(); i++ {
+	for i := range gitType.NumField() {
 		field := gitType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -545,7 +545,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test UIConfig struct
 	uiType := reflect.TypeOf(UIConfig{})
-	for i := 0; i < uiType.NumField(); i++ {
+	for i := range uiType.NumField() {
 		field := uiType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -691,7 +691,7 @@ ui:
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := Load()
 		if err != nil {
 			b.Errorf("Load() failed: %v", err)
@@ -888,7 +888,7 @@ aliases:
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := Load()
 		if err != nil {
 			b.Errorf("Failed to load config: %v", err)
@@ -930,7 +930,7 @@ func BenchmarkSaveConfig(b *testing.B) {
 	config := defaultConfig()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		err := Save(config)
 		if err != nil {
 			b.Errorf("Failed to save config: %v", err)
