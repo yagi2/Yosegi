@@ -125,6 +125,78 @@ yosegi new -b hotfix/urgent-fix -p ../hotfix
 
 # 強制的にworktreeを削除（確認をスキップ）
 yosegi remove --force
+
+# インタラクティブ選択付きでworktreeパスを出力（シェルスクリプトで使用）
+# TUIはstderrに表示され、選択結果はstdoutに出力される
+yosegi list --print
+# または
+yosegi ls -p
+```
+
+### ディレクトリ移動の統合
+
+Yosegiの`--print`フラグを使用することで、選択したworktreeに簡単に移動できます。このモードでは、TUIがstderrに表示され、選択結果がstdoutに出力されるため、コマンド置換と組み合わせて使用できます。
+
+#### Bashの場合
+
+```bash
+# ~/.bashrcに追加
+ycd() {
+    local worktree=$(yosegi list --print)
+    if [ -n "$worktree" ]; then
+        cd "$worktree"
+    fi
+}
+
+# より高度なバージョン（エラーハンドリング付き）
+ycd() {
+    local worktree
+    worktree=$(yosegi list --print 2>/dev/null)
+    if [ $? -eq 0 ] && [ -n "$worktree" ]; then
+        cd "$worktree"
+        echo "Changed to: $worktree"
+    else
+        echo "No worktree selected or error occurred"
+    fi
+}
+```
+
+#### Zshの場合
+
+```zsh
+# ~/.zshrcに追加
+ycd() {
+    local worktree=$(yosegi list --print)
+    if [[ -n $worktree ]]; then
+        cd $worktree
+    fi
+}
+```
+
+#### Fishの場合
+
+```fish
+# ~/.config/fish/functions/ycd.fishに保存
+function ycd
+    set worktree (yosegi list --print)
+    if test -n "$worktree"
+        cd $worktree
+    end
+end
+```
+
+#### ワンライナーでの使用
+
+```bash
+# コマンド置換を使用した直接移動（TUIで選択してから移動）
+cd $(yosegi list --print)
+
+# 短縮形
+cd $(yosegi ls -p)
+
+# 注: コマンド置換なしで`yosegi list`を使用すると、
+# 最初の非currentワーキングツリーが自動的に選択されます
+cd $(yosegi list)
 ```
 
 ## 開発

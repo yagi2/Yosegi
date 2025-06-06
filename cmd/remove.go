@@ -103,7 +103,7 @@ var removeCmd = &cobra.Command{
 
 			// Determine if we should delete the branch
 			deleteBranch := cfg.Git.DeleteBranchOnWorktreeRemove
-			
+
 			// Check for unpushed commits
 			hasUnpushed, unpushedCount, err := manager.HasUnpushedCommits(result.Worktree.Branch)
 			if err == nil && hasUnpushed {
@@ -113,12 +113,12 @@ var removeCmd = &cobra.Command{
 					fmt.Sprintf("Branch '%s' has %d unpushed commits. Delete branch anyway?", result.Worktree.Branch, unpushedCount),
 				)
 				program := tea.NewProgram(warningModel)
-				
+
 				finalWarningModel, err := program.Run()
 				if err != nil {
 					return fmt.Errorf("failed to run warning dialog: %w", err)
 				}
-				
+
 				warningResult := finalWarningModel.(ui.ConfirmModel).GetResult()
 				if warningResult.Cancelled || !warningResult.Confirmed {
 					deleteBranch = false
@@ -132,12 +132,12 @@ var removeCmd = &cobra.Command{
 					fmt.Sprintf("Also delete the local branch '%s'?", result.Worktree.Branch),
 				)
 				program := tea.NewProgram(confirmBranchModel)
-				
+
 				finalBranchModel, err := program.Run()
 				if err != nil {
 					return fmt.Errorf("failed to run branch deletion dialog: %w", err)
 				}
-				
+
 				branchResult := finalBranchModel.(ui.ConfirmModel).GetResult()
 				deleteBranch = !branchResult.Cancelled && branchResult.Confirmed
 			}
