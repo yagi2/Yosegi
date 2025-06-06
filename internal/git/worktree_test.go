@@ -733,3 +733,218 @@ func TestManagerHasUnpushedCommitsStructure(t *testing.T) {
 		t.Logf("HasUnpushedCommits succeeded: hasUnpushed=%v, count=%d", hasUnpushed, count)
 	}
 }
+
+// Security validation tests
+func TestValidateBranchName(t *testing.T) {
+	tests := []struct {
+		name        string
+		branchName  string
+		shouldError bool
+		errorMsg    string
+	}{
+		{
+			name:        "Valid branch name",
+			branchName:  "feature/new-feature",
+			shouldError: false,
+		},
+		{
+			name:        "Valid simple name",
+			branchName:  "main",
+			shouldError: false,
+		},
+		{
+			name:        "Empty branch name",
+			branchName:  "",
+			shouldError: true,
+			errorMsg:    "cannot be empty",
+		},
+		{
+			name:        "Branch name starting with dash",
+			branchName:  "-dangerous",
+			shouldError: true,
+			errorMsg:    "cannot start with a dash",
+		},
+		{
+			name:        "Branch name with semicolon (command injection)",
+			branchName:  "branch;rm -rf /",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Branch name with pipe (command injection)",
+			branchName:  "branch|cat /etc/passwd",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Branch name with backticks (command injection)",
+			branchName:  "branch`whoami`",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Branch name with dollar (variable expansion)",
+			branchName:  "branch$USER",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Branch name starting with dot",
+			branchName:  ".hidden",
+			shouldError: true,
+			errorMsg:    "cannot start or end with a dot",
+		},
+		{
+			name:        "Branch name with consecutive dots",
+			branchName:  "feature..test",
+			shouldError: true,
+			errorMsg:    "consecutive dots",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateBranchName(tt.branchName)
+			
+			if tt.shouldError {
+				if err == nil {
+					t.Errorf("Expected error for branch name '%s', but got none", tt.branchName)
+					return
+				}
+				if tt.errorMsg != "" && !strings.Contains(err.Error(), tt.errorMsg) {
+					t.Errorf("Expected error to contain '%s', got: %s", tt.errorMsg, err.Error())
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error for branch name '%s', but got: %v", tt.branchName, err)
+				}
+			}
+		})
+	}
+}
+
+func TestValidatePath(t *testing.T) {
+	tests := []struct {
+		name        string
+		path        string
+		shouldError bool
+		errorMsg    string
+	}{
+		{
+			name:        "Valid relative path",
+			path:        "../feature-branch",
+			shouldError: false,
+		},
+		{
+			name:        "Valid absolute path",
+			path:        "/tmp/worktree",
+			shouldError: false,
+		},
+		{
+			name:        "Empty path",
+			path:        "",
+			shouldError: true,
+			errorMsg:    "cannot be empty",
+		},
+		{
+			name:        "Path with semicolon (command injection)",
+			path:        "/tmp/test;rm -rf /",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Path with pipe (command injection)",
+			path:        "/tmp/test|cat /etc/passwd",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Path with backticks (command injection)",
+			path:        "/tmp/test`whoami`",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Path with ampersand (background execution)",
+			path:        "/tmp/test&malicious",
+			shouldError: true,
+			errorMsg:    "dangerous character",
+		},
+		{
+			name:        "Path with directory traversal (deep)",
+			path:        "/tmp/../../../etc/passwd",
+			shouldError: true,
+			errorMsg:    "directory traversal",
+		},
+		{
+			name:        "Path accessing /etc directory",
+			path:        "/etc/passwd",
+			shouldError: true,
+			errorMsg:    "restricted directory",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validatePath(tt.path)
+			
+			if tt.shouldError {
+				if err == nil {
+					t.Errorf("Expected error for path '%s', but got none", tt.path)
+					return
+				}
+				if tt.errorMsg != "" && !strings.Contains(err.Error(), tt.errorMsg) {
+					t.Errorf("Expected error to contain '%s', got: %s", tt.errorMsg, err.Error())
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error for path '%s', but got: %v", tt.path, err)
+				}
+			}
+		})
+	}
+}
+
+func TestManagerAddWithSecurityValidation(t *testing.T) {
+	m := &manager{repoRoot: "/tmp"}
+	
+	// Test malicious branch name
+	err := m.Add("/tmp/test", "branch;rm -rf /", false)
+	if err == nil {
+		t.Error("Expected error for malicious branch name")
+	} else if !strings.Contains(err.Error(), "invalid branch name") {
+		t.Errorf("Expected branch validation error, got: %s", err.Error())
+	}
+	
+	// Test malicious path
+	err = m.Add("/tmp/test;malicious", "valid-branch", false)
+	if err == nil {
+		t.Error("Expected error for malicious path")
+	} else if !strings.Contains(err.Error(), "invalid path") {
+		t.Errorf("Expected path validation error, got: %s", err.Error())
+	}
+}
+
+func TestManagerRemoveWithSecurityValidation(t *testing.T) {
+	m := &manager{repoRoot: "/tmp"}
+	
+	// Test malicious path
+	err := m.Remove("/tmp/test;rm -rf /", false)
+	if err == nil {
+		t.Error("Expected error for malicious path")
+	} else if !strings.Contains(err.Error(), "invalid path") {
+		t.Errorf("Expected path validation error, got: %s", err.Error())
+	}
+}
+
+func TestManagerDeleteBranchWithSecurityValidation(t *testing.T) {
+	m := &manager{repoRoot: "/tmp"}
+	
+	// Test malicious branch name
+	err := m.DeleteBranch("branch;rm -rf /", false)
+	if err == nil {
+		t.Error("Expected error for malicious branch name")
+	} else if !strings.Contains(err.Error(), "invalid branch name") {
+		t.Errorf("Expected branch validation error, got: %s", err.Error())
+	}
+}
