@@ -6,36 +6,36 @@
 [![GitHub release](https://img.shields.io/github/release/yagi2/Yosegi.svg)](https://github.com/yagi2/Yosegi/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-美しいTUIインターフェースを備えたインタラクティブなgit worktree管理ツール
+Interactive git worktree management tool with a beautiful TUI interface
 
-## 概要
+## Overview
 
-Yosegiは、現代の「Vibe Coding」時代のために設計されたクロスプラットフォーム対応CLIツールで、git worktreeの直感的でビジュアルな管理を提供します。`tig`や`peco`のように、複数のgit worktreeを簡単に管理するための優れたビジュアルインターフェースを提供します。
+Yosegi is a cross-platform CLI tool designed for the modern "Vibe Coding" era, providing intuitive and visual management of git worktrees. Like `tig` or `peco`, it offers an excellent visual interface for easily managing multiple git worktrees.
 
-## 機能
+## Features
 
-- 🎯 **インタラクティブUI**: Bubble TeaとLip Glossで構築された美しいターミナルインターフェース
-- 🌲 **Worktree管理**: git worktreeをシームレスに作成、一覧表示、削除
-- 🎨 **カスタマイズ可能なテーマ**: YAMLベースの色とUI設定
-- ⚡ **キーボードナビゲーション**: Vimスタイルのナビゲーション（j/k）と矢印キー
-- 🛡️ **安全機能**: 確認プロンプトと誤削除防止
-- 🌍 **クロスプラットフォーム**: Windows、macOS、Linux完全対応
-- 🐳 **Docker対応**: マルチアーキテクチャコンテナサポート
-- 📦 **軽量**: シングルバイナリ、外部依存なし
+- 🎯 **Interactive UI**: Beautiful terminal interface built with Bubble Tea and Lip Gloss
+- 🌲 **Worktree Management**: Seamlessly create, list, and delete git worktrees
+- 🎨 **Customizable Themes**: YAML-based color and UI configuration
+- ⚡ **Keyboard Navigation**: Vim-style navigation (j/k) and arrow keys
+- 🛡️ **Safety Features**: Confirmation prompts and accidental deletion prevention
+- 🌍 **Cross-Platform**: Full support for Windows, macOS, and Linux
+- 🐳 **Docker Support**: Multi-architecture container support
+- 📦 **Lightweight**: Single binary with no external dependencies
 
-## インストール
+## Installation
 
-### Go Install（推奨）
+### Go Install (Recommended)
 
-Go 1.24以上がインストールされている場合：
+If you have Go 1.24 or later installed:
 
 ```bash
 go install github.com/yagi2/yosegi@latest
 ```
 
-### プリビルドバイナリ
+### Pre-built Binaries
 
-#### 自動インストール
+#### Automated Installation
 
 **Linux/macOS:**
 ```bash
@@ -50,9 +50,9 @@ Expand-Archive -Path "yosegi.zip" -DestinationPath "."
 Move-Item yosegi.exe C:\Windows\System32\
 ```
 
-#### 手動ダウンロード
+#### Manual Download
 
-[リリースページ](https://github.com/yagi2/Yosegi/releases)から対応するプラットフォーム用のバイナリをダウンロード:
+Download the appropriate binary for your platform from the [releases page](https://github.com/yagi2/Yosegi/releases):
 
 - **Linux**: `yosegi_Linux_x86_64.tar.gz` (AMD64), `yosegi_Linux_arm64.tar.gz` (ARM64)
 - **macOS**: `yosegi_Darwin_x86_64.tar.gz` (Intel), `yosegi_Darwin_arm64.tar.gz` (Apple Silicon)
@@ -61,88 +61,88 @@ Move-Item yosegi.exe C:\Windows\System32\
 ### Docker
 
 ```bash
-# 最新版を実行
+# Run latest version
 docker run --rm -it ghcr.io/yagi2/yosegi:latest
 
-# 特定のバージョン
+# Run specific version
 docker run --rm -it ghcr.io/yagi2/yosegi:v1.0.0
 
-# ローカルリポジトリをマウントして実行
+# Mount local repository and run
 docker run --rm -it -v $(pwd):/workspace -w /workspace ghcr.io/yagi2/yosegi:latest
 ```
 
-### パッケージマネージャー
+### Package Managers
 
-#### Homebrew（計画中）
+#### Homebrew (Coming Soon)
 ```bash
-# 近日対応予定
+# Coming soon
 brew install yagi2/tap/yosegi
 ```
 
-#### Chocolatey（計画中）
+#### Chocolatey (Coming Soon)
 ```powershell
-# 近日対応予定
+# Coming soon
 choco install yosegi
 ```
 
-#### Scoop（計画中）
+#### Scoop (Coming Soon)
 ```powershell
-# 近日対応予定
+# Coming soon
 scoop install yosegi
 ```
 
-### ソースからビルド
+### Build from Source
 
 ```bash
 git clone https://github.com/yagi2/yosegi.git
 cd yosegi
 go build -o bin/yosegi .
 
-# または開発用タスクランナーを使用
+# Or use the development task runner
 go install github.com/go-task/task/v3/cmd/task@latest
 task build
 ```
 
-## 使い方
+## Usage
 
-### 基本コマンド
+### Basic Commands
 
-#### Worktreeの一覧表示
+#### List Worktrees
 ```bash
-yosegi list     # または yosegi ls, yosegi l
+yosegi list     # or yosegi ls, yosegi l
 ```
-現在のステータスインジケータ付きの全worktreeのインタラクティブリスト。
+Interactive list of all worktrees with current status indicators.
 
-#### 新しいWorktreeの作成
+#### Create New Worktree
 ```bash
-yosegi new [branch]              # インタラクティブな作成
-yosegi new feature-branch        # 指定したブランチで作成（ブランチが存在しない場合は自動作成）
-yosegi new -b new-feature        # 明示的に新しいブランチとworktreeを作成
-yosegi new -p ../feature feature # カスタムパスを指定
+yosegi new [branch]              # Interactive creation
+yosegi new feature-branch        # Create with specified branch (auto-creates branch if it doesn't exist)
+yosegi new -b new-feature        # Explicitly create new branch and worktree
+yosegi new -p ../feature feature # Specify custom path
 ```
 
-#### Worktreeの削除
+#### Remove Worktree
 ```bash
-yosegi remove   # または yosegi rm, yosegi delete
+yosegi remove   # or yosegi rm, yosegi delete
 ```
-確認プロンプト付きの安全な削除。
+Safe deletion with confirmation prompts.
 
-### 設定
+### Configuration
 
-#### 設定の初期化
+#### Initialize Configuration
 ```bash
 yosegi config init
 ```
-`~/.config/yosegi/config.yaml`にデフォルト設定ファイルを作成します。
+Creates a default configuration file at `~/.config/yosegi/config.yaml`.
 
-#### 現在の設定を表示
+#### Show Current Configuration
 ```bash
 yosegi config show
 ```
 
-### 設定ファイル
+### Configuration File
 
-`~/.config/yosegi/config.yaml`の例：
+Example `~/.config/yosegi/config.yaml`:
 
 ```yaml
 default_worktree_path: "../"
@@ -155,7 +155,7 @@ theme:
   muted: "#6B7280"
   text: "#F9FAFB"
 git:
-  auto_create_branch: true   # ブランチが存在しない場合、自動的に作成
+  auto_create_branch: true   # Automatically create branch if it doesn't exist
   default_remote: "origin"
   exclude_patterns: []
 ui:
@@ -167,59 +167,59 @@ aliases:
   rm: "remove"
 ```
 
-## キーボードナビゲーション
+## Keyboard Navigation
 
-- `↑/k`: 上に移動
-- `↓/j`: 下に移動  
-- `Enter`: 選択/実行
-- `d`: 削除（削除モード時）
-- `q`: 終了
-- `Tab/Shift+Tab`: 入力フィールドのナビゲート
+- `↑/k`: Move up
+- `↓/j`: Move down  
+- `Enter`: Select/Execute
+- `d`: Delete (in delete mode)
+- `q`: Quit
+- `Tab/Shift+Tab`: Navigate input fields
 
-## 使用例
+## Examples
 
-### 典型的なワークフロー
+### Typical Workflow
 
 ```bash
-# 現在のworktreeを一覧表示（サブコマンド無しでも実行可能）
+# List current worktrees (can run without subcommands)
 yosegi
-# または
+# or
 yosegi list
 
-# 機能開発用の新しいworktreeを作成
+# Create a new worktree for feature development
 yosegi new feature/user-auth
 
-# 手動でディレクトリを移動
+# Manually navigate to the directory
 cd ../feature-user-auth
 
-# 完了したらworktreeを削除
+# Remove worktree when done
 yosegi remove
 ```
 
-### 高度な使い方
+### Advanced Usage
 
 ```bash
-# カスタムパスと新しいブランチでworktreeを作成
+# Create worktree with custom path and new branch
 yosegi new -b hotfix/urgent-fix -p ../hotfix
 
-# 強制的にworktreeを削除（確認をスキップ）
+# Force delete worktree (skip confirmation)
 yosegi remove --force
 
-# インタラクティブ選択付きでworktreeパスを出力（シェルスクリプトで使用）
-# TUIはstderrに表示され、選択結果はstdoutに出力される
+# Output worktree path with interactive selection (for shell scripts)
+# TUI is displayed on stderr, selection result is output to stdout
 yosegi list --print
-# または
+# or
 yosegi ls -p
 ```
 
-### ディレクトリ移動の統合
+### Directory Navigation Integration
 
-Yosegiの`--print`フラグを使用することで、選択したworktreeに簡単に移動できます。このモードでは、TUIがstderrに表示され、選択結果がstdoutに出力されるため、コマンド置換と組み合わせて使用できます。
+Using Yosegi's `--print` flag, you can easily navigate to selected worktrees. In this mode, the TUI is displayed on stderr and the selection result is output to stdout, allowing use with command substitution.
 
-#### Bashの場合
+#### For Bash
 
 ```bash
-# ~/.bashrcに追加
+# Add to ~/.bashrc
 ycd() {
     local worktree=$(yosegi list --print)
     if [ -n "$worktree" ]; then
@@ -227,7 +227,7 @@ ycd() {
     fi
 }
 
-# より高度なバージョン（エラーハンドリング付き）
+# More advanced version (with error handling)
 ycd() {
     local worktree
     worktree=$(yosegi list --print 2>/dev/null)
@@ -240,10 +240,10 @@ ycd() {
 }
 ```
 
-#### Zshの場合
+#### For Zsh
 
 ```zsh
-# ~/.zshrcに追加
+# Add to ~/.zshrc
 ycd() {
     local worktree=$(yosegi list --print)
     if [[ -n $worktree ]]; then
@@ -252,10 +252,10 @@ ycd() {
 }
 ```
 
-#### Fishの場合
+#### For Fish
 
 ```fish
-# ~/.config/fish/functions/ycd.fishに保存
+# Save to ~/.config/fish/functions/ycd.fish
 function ycd
     set worktree (yosegi list --print)
     if test -n "$worktree"
@@ -264,209 +264,209 @@ function ycd
 end
 ```
 
-#### ワンライナーでの使用
+#### One-liner Usage
 
 ```bash
-# コマンド置換を使用した直接移動（TUIで選択してから移動）
+# Direct navigation using command substitution (select in TUI then navigate)
 cd $(yosegi list --print)
 
-# 短縮形
+# Short form
 cd $(yosegi ls -p)
 
-# 注: コマンド置換なしで`yosegi list`を使用すると、
-# 最初の非currentワーキングツリーが自動的に選択されます
+# Note: Using `yosegi list` without command substitution
+# automatically selects the first non-current worktree
 cd $(yosegi list)
 ```
 
-## 開発
+## Development
 
-### 開発環境のセットアップ
+### Development Environment Setup
 
 ```bash
 git clone https://github.com/yagi2/yosegi.git
 cd yosegi
 
-# 依存関係のダウンロード
+# Download dependencies
 go mod download
 
-# 開発用タスクランナーのインストール
+# Install development task runner
 go install github.com/go-task/task/v3/cmd/task@latest
 
-# 利用可能なタスクを確認
+# Check available tasks
 task --list-all
 ```
 
-### ビルド
+### Building
 
 ```bash
-# 開発用ビルド
+# Development build
 go build -o bin/yosegi .
 
-# リリース用ビルド（最適化済み）
+# Release build (optimized)
 task build-release
 
-# クロスプラットフォームビルド
+# Cross-platform build
 task build-all
 
-# Taskを使用（推奨）
+# Using Task (recommended)
 task build
 ```
 
-### テスト
+### Testing
 
 ```bash
-# すべてのテストを実行
+# Run all tests
 go test ./...
 
-# レースコンディション検出付き
+# With race condition detection
 go test -race ./...
 
-# カバレッジ計測付き
+# With coverage measurement
 go test -coverprofile=coverage.out ./...
 
-# Taskを使用（推奨）
+# Using Task (recommended)
 task test
 
-# 短縮版テスト（開発時）
+# Short test (for development)
 task test-short
 ```
 
-### 品質チェック
+### Quality Checks
 
 ```bash
-# リンティング
+# Linting
 go fmt ./...
 go vet ./...
 
-# セキュリティスキャン
+# Security scanning
 gosec ./...
 
-# Taskを使用（推奨）
+# Using Task (recommended)
 task lint
 
-# CI環境相当のチェック
+# CI-equivalent checks
 task ci
 ```
 
-### Docker開発
+### Docker Development
 
 ```bash
-# Dockerイメージをビルド
+# Build Docker image
 docker build -t yosegi:dev .
 
-# またはTaskを使用
+# Or using Task
 task docker-build
 
-# マルチアーキテクチャビルド
+# Multi-architecture build
 task docker-build-multi
 ```
 
-### 利用可能なTaskコマンド
+### Available Task Commands
 
-主要なタスクコマンド（`task --list-all`で全てを確認）:
+Key task commands (see all with `task --list-all`):
 
-- `task dev` - 開発モードで実行
-- `task build` - 開発用ビルド
-- `task build-release` - リリース用最適化ビルド
-- `task test` - 全テスト実行（カバレッジ付き）
-- `task test-short` - 短縮版テスト
-- `task lint` - 全品質チェック実行
-- `task clean` - ビルド成果物削除
-- `task install` - GOPATH/binにインストール
-- `task ci` - CI環境相当のチェック
+- `task dev` - Run in development mode
+- `task build` - Development build
+- `task build-release` - Optimized release build
+- `task test` - Run all tests (with coverage)
+- `task test-short` - Short test version
+- `task lint` - Run all quality checks
+- `task clean` - Clean build artifacts
+- `task install` - Install to GOPATH/bin
+- `task ci` - CI-equivalent checks
 
-## コントリビューション
+## Contributing
 
-コントリビューションを歓迎します！以下の手順に従ってください：
+Contributions are welcome! Please follow these steps:
 
-### コントリビューション手順
+### Contribution Process
 
-1. **リポジトリをフォーク**
-2. **開発環境をセットアップ**
+1. **Fork the repository**
+2. **Set up development environment**
    ```bash
    git clone https://github.com/your-username/yosegi.git
    cd yosegi
    go mod download
    task dev
    ```
-3. **フィーチャーブランチを作成**
+3. **Create feature branch**
    ```bash
    git checkout -b feature/amazing-feature
    ```
-4. **変更を実装し、テストを追加**
+4. **Implement changes and add tests**
    ```bash
-   # 変更を実装
-   # テストを実行
+   # Implement changes
+   # Run tests
    task test
-   # リンティングを実行
+   # Run linting
    task lint
    ```
-5. **変更をコミット**
+5. **Commit changes**
    ```bash
    git commit -m 'feat: add amazing feature'
    ```
-6. **ブランチにプッシュ**
+6. **Push to branch**
    ```bash
    git push origin feature/amazing-feature
    ```
-7. **プルリクエストを作成**
+7. **Create pull request**
 
-### 開発ガイドライン
+### Development Guidelines
 
-- **コミットメッセージ**: [Conventional Commits](https://conventionalcommits.org/)形式を使用
-- **コードスタイル**: `gofmt`と`golangci-lint`に準拠
-- **テスト**: 新機能には必ずテストを追加
-- **ドキュメント**: READMEと関連ドキュメントを更新
-- **Windows対応**: クロスプラットフォーム互換性を維持
+- **Commit Messages**: Use [Conventional Commits](https://conventionalcommits.org/) format
+- **Code Style**: Follow `gofmt` and `golangci-lint` standards
+- **Testing**: Always add tests for new features
+- **Documentation**: Update README and related documentation
+- **Windows Support**: Maintain cross-platform compatibility
 
-### バグレポート・機能要求
+### Bug Reports & Feature Requests
 
-- **バグレポート**: [Issues](https://github.com/yagi2/Yosegi/issues)で報告
-- **機能要求**: Discussionsで提案
-- **セキュリティ**: [SECURITY.md](SECURITY.md)に従って報告
+- **Bug Reports**: Report on [Issues](https://github.com/yagi2/Yosegi/issues)
+- **Feature Requests**: Propose in Discussions
+- **Security**: Report following [SECURITY.md](SECURITY.md)
 
-## 動作要件
+## System Requirements
 
-### 最小要件
-- **Go**: 1.24以上（開発時）
-- **Git**: 2.25以上（worktree機能サポート）
+### Minimum Requirements
+- **Go**: 1.24+ (for development)
+- **Git**: 2.25+ (worktree feature support)
 - **OS**: Windows 10+, macOS 10.15+, Linux (glibc 2.17+)
 
-### 推奨環境
-- **ターミナル**: True Color対応（24bit色）
-- **フォント**: Nerd Font対応（アイコン表示用）
-- **シェル**: Bash, Zsh, Fish, PowerShell
+### Recommended Environment
+- **Terminal**: True Color support (24-bit color)
+- **Font**: Nerd Font support (for icon display)
+- **Shell**: Bash, Zsh, Fish, PowerShell
 
-### 対応アーキテクチャ
+### Supported Architectures
 - **x86_64** (AMD64)
 - **ARM64** (Apple Silicon, ARM64)
-- **32bit**: ARMv6, ARMv7（Linux）
+- **32-bit**: ARMv6, ARMv7 (Linux)
 
-## ライセンス
+## License
 
-MIT License - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
+MIT License - See [LICENSE](LICENSE) file for details.
 
-## 謝辞
+## Acknowledgments
 
-Yosegiは以下の優れたプロジェクトとコミュニティの影響を受けて開発されました：
+Yosegi was developed with inspiration from the following excellent projects and communities:
 
-### インスピレーション
-- **[tig](https://github.com/jonas/tig)**: 美しいGitインターフェースの先駆者
-- **[peco](https://github.com/peco/peco)**: インタラクティブ選択の革命
-- **[fzf](https://github.com/junegunn/fzf)**: 高速ファジーファインダー
+### Inspiration
+- **[tig](https://github.com/jonas/tig)**: Pioneer of beautiful Git interfaces
+- **[peco](https://github.com/peco/peco)**: Revolutionary interactive selection tool
+- **[fzf](https://github.com/junegunn/fzf)**: High-performance fuzzy finder
 
-### 技術スタック
-- **[Bubble Tea](https://github.com/charmbracelet/bubbletea)**: エレガントなTUIフレームワーク
-- **[Lip Gloss](https://github.com/charmbracelet/lipgloss)**: 美しいターミナルスタイリング
-- **[Bubbles](https://github.com/charmbracelet/bubbles)**: 再利用可能なTUIコンポーネント
-- **[Cobra](https://github.com/spf13/cobra)**: 強力なCLIライブラリ
-- **[Go](https://golang.org/)**: シンプルで高性能な言語
+### Technology Stack
+- **[Bubble Tea](https://github.com/charmbracelet/bubbletea)**: Elegant TUI framework
+- **[Lip Gloss](https://github.com/charmbracelet/lipgloss)**: Beautiful terminal styling
+- **[Bubbles](https://github.com/charmbracelet/bubbles)**: Reusable TUI components
+- **[Cobra](https://github.com/spf13/cobra)**: Powerful CLI library
+- **[Go](https://golang.org/)**: Simple and high-performance language
 
-### 開発ツール
-- **[GoReleaser](https://goreleaser.com/)**: 自動化されたリリース管理
-- **[GitHub Actions](https://github.com/features/actions)**: CI/CD パイプライン
-- **[Task](https://taskfile.dev/)**: モダンなタスクランナー
-- **[golangci-lint](https://golangci-lint.run/)**: 包括的なコード解析
+### Development Tools
+- **[GoReleaser](https://goreleaser.com/)**: Automated release management
+- **[GitHub Actions](https://github.com/features/actions)**: CI/CD pipeline
+- **[Task](https://taskfile.dev/)**: Modern task runner
+- **[golangci-lint](https://golangci-lint.run/)**: Comprehensive code analysis
 
-### コミュニティ
-すべてのコントリビューター、テスター、そしてフィードバックを提供してくださった皆様に感謝いたします。
+### Community
+We extend our gratitude to all contributors, testers, and everyone who has provided feedback.
