@@ -16,24 +16,10 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 
 ## インストール
 
-### Go Installを使用（推奨）
+### Go Install（推奨）
 
 ```bash
 go install github.com/yagi2/yosegi@latest
-```
-
-### バイナリダウンロード
-
-[リリースページ](https://github.com/yagi2/Yosegi/releases)から最新のバイナリをダウンロード:
-
-```bash
-# Linux/macOS
-curl -L https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_$(uname -s)_$(uname -m).tar.gz | tar xz
-sudo mv yosegi /usr/local/bin/
-
-# Windows (PowerShell)
-Invoke-WebRequest -Uri "https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_Windows_x86_64.zip" -OutFile "yosegi.zip"
-Expand-Archive -Path "yosegi.zip" -DestinationPath "."
 ```
 
 ### パッケージマネージャー
@@ -41,7 +27,7 @@ Expand-Archive -Path "yosegi.zip" -DestinationPath "."
 #### Homebrew (macOS/Linux)
 
 ```bash
-brew tap yagi2/tap
+brew tap yagi2/homebrew-tap
 brew install yosegi
 ```
 
@@ -55,13 +41,53 @@ scoop install yosegi
 #### Arch Linux (AUR)
 
 ```bash
+# yayを使用
 yay -S yosegi-bin
+
+# pacmanとmakepkgを使用
+git clone https://aur.archlinux.org/yosegi-bin.git
+cd yosegi-bin
+makepkg -si
+```
+
+### プリビルドバイナリ
+
+#### 自動インストール
+
+```bash
+# Linux/macOS (最新版を自動取得)
+curl -L https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_$(uname -s)_$(uname -m).tar.gz | tar xz
+sudo mv yosegi /usr/local/bin/
+
+# 特定バージョンの指定
+curl -L https://github.com/yagi2/Yosegi/releases/download/v1.0.0/yosegi_Linux_x86_64.tar.gz | tar xz
+```
+
+#### 手動ダウンロード
+
+[リリースページ](https://github.com/yagi2/Yosegi/releases)から対応するプラットフォーム用のバイナリをダウンロード:
+
+- **Linux**: `yosegi_Linux_{x86_64,arm64,armv6,armv7}.tar.gz`
+- **macOS**: `yosegi_Darwin_{x86_64,arm64}.tar.gz`
+- **Windows**: `yosegi_Windows_{x86_64,arm64}.zip`
+
+```bash
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_Windows_x86_64.zip" -OutFile "yosegi.zip"
+Expand-Archive -Path "yosegi.zip" -DestinationPath "."
 ```
 
 ### Docker
 
 ```bash
+# 最新版を実行
 docker run --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/yagi2/yosegi:latest --help
+
+# 特定バージョンを指定
+docker run --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/yagi2/yosegi:v1.0.0 list
+
+# コンテナ内でシェルを起動
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/yagi2/yosegi:latest sh
 ```
 
 ### ソースからビルド
@@ -70,6 +96,25 @@ docker run --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/yagi2/yosegi:latest
 git clone https://github.com/yagi2/yosegi.git
 cd yosegi
 go build -o bin/yosegi .
+
+# またはTaskを使用
+task build
+```
+
+### セキュリティ検証
+
+リリースされたバイナリは[Cosign](https://github.com/sigstore/cosign)で署名されています：
+
+```bash
+# 署名の検証
+cosign verify-blob \
+  --certificate-identity-regexp="https://github.com/yagi2/Yosegi" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  --bundle yosegi_Linux_x86_64.tar.gz.bundle \
+  yosegi_Linux_x86_64.tar.gz
+
+# チェックサムの検証
+sha256sum -c checksums.txt
 ```
 
 ## 使い方
