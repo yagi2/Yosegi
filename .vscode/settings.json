@@ -1,19 +1,4 @@
 {
-    "cSpell.words": [
-        "bubbletea",
-        "charmbracelet",
-        "goreleaser",
-        "lipgloss",
-        "peco",
-        "termenv",
-        "terminfo",
-        "uniseg",
-        "Worktree",
-        "worktrees",
-        "yagi",
-        "yosegi"
-    ],
-    // Go言語設定
     "go.useLanguageServer": true,
     "go.lintOnSave": "package",
     "go.lintTool": "golangci-lint",
@@ -39,7 +24,6 @@
         "ui.completion.usePlaceholders": true,
         "formatting.gofumpt": true
     },
-    // エディタ設定
     "[go]": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
@@ -53,7 +37,6 @@
             "source.organizeImports": "explicit"
         }
     },
-    // ファイル関連設定
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
@@ -74,18 +57,15 @@
         "**/node_modules": true,
         "**/*.sum": true
     },
-    // デバッグ設定
     "go.delveConfig": {
         "apiVersion": 2,
         "showGlobalVariables": true
     },
-    // コード品質
     "go.diagnostic.vulncheck": "Imports",
     "go.liveErrors": {
         "enabled": true,
         "delay": 500
     },
-    // プロジェクト固有の設定
     "go.toolsManagement.autoUpdate": true,
     "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.env.linux": {
