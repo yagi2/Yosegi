@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"runtime"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mattn/go-isatty"
@@ -39,48 +38,9 @@ var listCmd = &cobra.Command{
 				return fmt.Errorf("no worktrees found")
 			}
 
-			// For --print mode, try to get terminal access for interaction
-			var inputFile *os.File
-			var outputFile *os.File = os.Stderr
-			var interactive bool = false
-			
-			// Try to open controlling terminal
-			if runtime.GOOS != "windows" {
-				if ctty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
-					inputFile = ctty
-					outputFile = ctty
-					interactive = true
-					defer ctty.Close()
-				}
-			}
-			
-			// If we couldn't get terminal access, fallback to non-interactive
-			if !interactive {
-				// Non-interactive fallback: return first non-current worktree
-				for _, wt := range worktrees {
-					if !wt.IsCurrent {
-						fmt.Println(wt.Path)
-						return nil
-					}
-				}
-				// If all worktrees are current, just return the first one
-				if len(worktrees) > 0 {
-					fmt.Println(worktrees[0].Path)
-					return nil
-				}
-				return fmt.Errorf("no worktrees found")
-			}
-			
-			// Use simple numbered selector for --print mode
-			selectedWorktree, err := ui.SimpleSelectWorktree(worktrees, outputFile, inputFile)
+			// Use smart selector that adapts to TTY capabilities
+			selectedWorktree, err := ui.SmartSelectWorktree(worktrees)
 			if err != nil {
-				// If selection fails, fallback to first non-current
-				for _, wt := range worktrees {
-					if !wt.IsCurrent {
-						fmt.Println(wt.Path)
-						return nil
-					}
-				}
 				return err
 			}
 			
