@@ -1,0 +1,223 @@
+# GoReleaser configuration for Yosegi
+# Documentation: https://goreleaser.com
+
+version: 2
+
+# Build configuration
+builds:
+  - main: ./main.go
+    binary: yosegi
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+    flags:
+      - -trimpath
+
+# Archive configuration
+archives:
+  - format: tar.gz
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    files:
+      - README.md
+      - LICENSE*
+      - SECURITY.md
+      - CLAUDE.md
+
+# Checksum configuration
+checksum:
+  name_template: "checksums.txt"
+
+# Snapshot configuration (for development builds)
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+# Changelog configuration
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "merge conflict"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Security Updates"
+      regexp: "^.*security[(\\w)]*:+.*$"
+      order: 1
+    - title: "Bug Fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 2
+    - title: "Performance Improvements"
+      regexp: "^.*perf[(\\w)]*:+.*$"
+      order: 3
+    - title: "Code Refactoring"
+      regexp: "^.*refactor[(\\w)]*:+.*$"
+      order: 4
+    - title: "Test Coverage"
+      regexp: "^.*test[(\\w)]*:+.*$"
+      order: 5
+    - title: "Documentation Updates"
+      regexp: "^.*docs[(\\w)]*:+.*$"
+      order: 6
+    - title: "Other Changes"
+      order: 999
+
+# GitHub release configuration
+release:
+  github:
+    owner: yagi2
+    name: Yosegi
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Yosegi {{ .Tag }} ({{ .Date }})
+    
+    Interactive git worktree management tool with beautiful TUI.
+    
+    ### Installation
+    
+    ```bash
+    # Install with Go
+    go install github.com/yagi2/yosegi@{{ .Tag }}
+    
+    # Download binary
+    curl -L https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/yosegi_{{ .Version }}_$(uname -s)_$(uname -m).tar.gz | tar xz
+    ```
+  footer: |
+    **Full Changelog**: https://github.com/yagi2/Yosegi/compare/{{ .PreviousTag }}...{{ .Tag }}
+    
+    ---
+    
+    🌲 **Yosegi** - Interactive git worktree management tool
+    
+    - 📖 [Documentation](https://github.com/yagi2/Yosegi/blob/main/README.md)
+    - 🔒 [Security Policy](https://github.com/yagi2/Yosegi/blob/main/SECURITY.md)
+    - 🐛 [Report Issues](https://github.com/yagi2/Yosegi/issues)
+
+# Homebrew configuration (for macOS users)
+brews:
+  - name: yosegi
+    repository:
+      owner: yagi2
+      name: homebrew-tap
+      branch: main
+    url_template: "https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    download_strategy: CurlDownloadStrategy
+    folder: Formula
+    homepage: "https://github.com/yagi2/Yosegi"
+    description: "Interactive git worktree management tool with beautiful TUI"
+    license: "MIT"
+    test: |
+      system "#{bin}/yosegi", "--version"
+    install: |
+      bin.install "yosegi"
+
+# Scoop configuration (for Windows users)
+scoops:
+  - name: yosegi
+    repository:
+      owner: yagi2
+      name: scoop-bucket
+      branch: main
+    url_template: "https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    homepage: "https://github.com/yagi2/Yosegi"
+    description: "Interactive git worktree management tool with beautiful TUI"
+    license: "MIT"
+
+# AUR configuration (for Arch Linux users)
+aurs:
+  - name: yosegi-bin
+    homepage: "https://github.com/yagi2/Yosegi"
+    description: "Interactive git worktree management tool with beautiful TUI"
+    maintainers:
+      - "yagi2 <your-email@example.com>"
+    license: "MIT"
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/yosegi-bin.git"
+    package: |-
+      # bin
+      install -Dm755 "./yosegi" "${pkgdir}/usr/bin/yosegi"
+      
+      # license
+      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/yosegi/LICENSE"
+
+# Docker configuration
+dockers:
+  - image_templates:
+      - "ghcr.io/yagi2/yosegi:{{ .Tag }}"
+      - "ghcr.io/yagi2/yosegi:v{{ .Major }}"
+      - "ghcr.io/yagi2/yosegi:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/yagi2/yosegi:latest"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+
+# SBOMs (Software Bill of Materials)
+sboms:
+  - artifacts: archive
+  - id: source
+    artifacts: source
+
+# Signing configuration (optional, for enhanced security)
+signs:
+  - cmd: cosign
+    env:
+      - COSIGN_EXPERIMENTAL=1
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
+    output: true
+
+# Announcements
+announce:
+  skip: "{{gt .Patch 0}}"
+  
+# Git configuration
+git:
+  ignore_tags:
+    - "{{ .Env.NIGHTLY_TAG }}"
+
+# Universal Binaries for macOS
+universal_binaries:
+  - replace: true

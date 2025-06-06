@@ -16,6 +16,54 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 
 ## インストール
 
+### Go Installを使用（推奨）
+
+```bash
+go install github.com/yagi2/yosegi@latest
+```
+
+### バイナリダウンロード
+
+[リリースページ](https://github.com/yagi2/Yosegi/releases)から最新のバイナリをダウンロード:
+
+```bash
+# Linux/macOS
+curl -L https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_$(uname -s)_$(uname -m).tar.gz | tar xz
+sudo mv yosegi /usr/local/bin/
+
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_Windows_x86_64.zip" -OutFile "yosegi.zip"
+Expand-Archive -Path "yosegi.zip" -DestinationPath "."
+```
+
+### パッケージマネージャー
+
+#### Homebrew (macOS/Linux)
+
+```bash
+brew tap yagi2/tap
+brew install yosegi
+```
+
+#### Scoop (Windows)
+
+```bash
+scoop bucket add yagi2 https://github.com/yagi2/scoop-bucket
+scoop install yosegi
+```
+
+#### Arch Linux (AUR)
+
+```bash
+yay -S yosegi-bin
+```
+
+### Docker
+
+```bash
+docker run --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/yagi2/yosegi:latest --help
+```
+
 ### ソースからビルド
 
 ```bash
