@@ -16,7 +16,7 @@ func SmartSelectWorktree(worktrees []git.Worktree) (*git.Worktree, error) {
 
 	// Detect TTY capability
 	capability := DetectTTYCapability()
-	
+
 	switch capability {
 	case FullTTYControl:
 		return bubbleTeaSelector(worktrees)
@@ -67,11 +67,11 @@ func fallbackSelector(worktrees []git.Worktree) (*git.Worktree, error) {
 			return &wt, nil
 		}
 	}
-	
+
 	// If all worktrees are current, return the first one
 	if len(worktrees) > 0 {
 		return &worktrees[0], nil
 	}
-	
+
 	return nil, fmt.Errorf("no worktrees found")
 }

@@ -23,7 +23,7 @@ func TestDetectTTYCapability(t *testing.T) {
 	// This test verifies the function runs without error
 	// Actual result depends on the test environment
 	capability := DetectTTYCapability()
-	
+
 	// Should return one of the valid values
 	switch capability {
 	case NoTTYControl, BasicTTYControl, FullTTYControl:
@@ -64,12 +64,12 @@ func TestGetTTYFiles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			input, output, cleanup, err := GetTTYFiles(tt.capability)
-			
+
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetTTYFiles() error = %v, expectErr %v", err, tt.expectErr)
 				return
 			}
-			
+
 			if err == nil {
 				// Verify we got valid file handles
 				if input == nil {
@@ -81,7 +81,7 @@ func TestGetTTYFiles(t *testing.T) {
 				if cleanup == nil {
 					t.Error("GetTTYFiles() returned nil cleanup function")
 				}
-				
+
 				// Call cleanup function
 				cleanup()
 			}
@@ -91,11 +91,11 @@ func TestGetTTYFiles(t *testing.T) {
 
 func TestGetTTYFilesFullTTYControl(t *testing.T) {
 	input, output, cleanup, err := GetTTYFiles(FullTTYControl)
-	
+
 	if err != nil {
 		t.Fatalf("GetTTYFiles(FullTTYControl) failed: %v", err)
 	}
-	
+
 	// Should return stdin and stderr
 	if input != os.Stdin {
 		t.Error("Expected input to be os.Stdin for FullTTYControl")
@@ -103,7 +103,7 @@ func TestGetTTYFilesFullTTYControl(t *testing.T) {
 	if output != os.Stderr {
 		t.Error("Expected output to be os.Stderr for FullTTYControl")
 	}
-	
+
 	// Cleanup should be a no-op
 	cleanup()
 }
@@ -112,13 +112,13 @@ func TestGetTTYFilesBasicTTYControlWindows(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("Skipping Windows-specific test")
 	}
-	
+
 	input, output, cleanup, err := GetTTYFiles(BasicTTYControl)
-	
+
 	if err != nil {
 		t.Fatalf("GetTTYFiles(BasicTTYControl) failed on Windows: %v", err)
 	}
-	
+
 	// On Windows, should return stdin and stderr
 	if input != os.Stdin {
 		t.Error("Expected input to be os.Stdin for BasicTTYControl on Windows")
@@ -126,17 +126,17 @@ func TestGetTTYFilesBasicTTYControlWindows(t *testing.T) {
 	if output != os.Stderr {
 		t.Error("Expected output to be os.Stderr for BasicTTYControl on Windows")
 	}
-	
+
 	cleanup()
 }
 
 func TestGetTTYFilesNoTTYControl(t *testing.T) {
 	input, output, cleanup, err := GetTTYFiles(NoTTYControl)
-	
+
 	if err != nil {
 		t.Fatalf("GetTTYFiles(NoTTYControl) failed: %v", err)
 	}
-	
+
 	// Should return stdin and stderr as fallback
 	if input != os.Stdin {
 		t.Error("Expected input to be os.Stdin for NoTTYControl")
@@ -144,7 +144,7 @@ func TestGetTTYFilesNoTTYControl(t *testing.T) {
 	if output != os.Stderr {
 		t.Error("Expected output to be os.Stderr for NoTTYControl")
 	}
-	
+
 	cleanup()
 }
 
@@ -161,7 +161,7 @@ func BenchmarkGetTTYFiles(b *testing.B) {
 		BasicTTYControl,
 		FullTTYControl,
 	}
-	
+
 	for _, cap := range capabilities {
 		b.Run(cap.String(), func(b *testing.B) {
 			for b.Loop() {

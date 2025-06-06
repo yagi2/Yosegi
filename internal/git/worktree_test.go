@@ -623,7 +623,7 @@ func TestManagerBranchHandling(t *testing.T) {
 func TestManagerDeleteBranch(t *testing.T) {
 	// Create a manager for testing
 	m := &manager{repoRoot: "/invalid/path"}
-	
+
 	tests := []struct {
 		name        string
 		branch      string
@@ -643,19 +643,19 @@ func TestManagerDeleteBranch(t *testing.T) {
 			branch:      "test-branch",
 			force:       true,
 			expectError: true, // Will fail due to invalid repo path
-			errorMsg:    "", // Error message varies
+			errorMsg:    "",   // Error message varies
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := m.DeleteBranch(tt.branch, tt.force)
-			
+
 			if (err != nil) != tt.expectError {
 				t.Errorf("DeleteBranch() error = %v, expectError %v", err, tt.expectError)
 				return
 			}
-			
+
 			if err != nil && tt.errorMsg != "" {
 				if !strings.Contains(err.Error(), tt.errorMsg) {
 					t.Logf("DeleteBranch error: %s", err.Error())
@@ -668,13 +668,13 @@ func TestManagerDeleteBranch(t *testing.T) {
 func TestManagerDeleteBranchStructure(t *testing.T) {
 	// Test the structure and argument handling of DeleteBranch
 	m := &manager{repoRoot: "/tmp"}
-	
+
 	// Test normal deletion
 	err := m.DeleteBranch("test-branch", false)
 	if err == nil {
 		t.Log("DeleteBranch called successfully (expected to fail in test env)")
 	}
-	
+
 	// Test force deletion
 	err = m.DeleteBranch("test-branch", true)
 	if err == nil {
@@ -685,7 +685,7 @@ func TestManagerDeleteBranchStructure(t *testing.T) {
 func TestManagerHasUnpushedCommits(t *testing.T) {
 	// Create a manager for testing
 	m := &manager{repoRoot: "/invalid/path"}
-	
+
 	tests := []struct {
 		name        string
 		branch      string
@@ -697,21 +697,21 @@ func TestManagerHasUnpushedCommits(t *testing.T) {
 			expectError: true, // Will fail due to invalid repo path
 		},
 		{
-			name:        "Check unpushed commits on non-existent branch", 
+			name:        "Check unpushed commits on non-existent branch",
 			branch:      "non-existent",
 			expectError: true, // Will fail due to invalid repo path
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hasUnpushed, count, err := m.HasUnpushedCommits(tt.branch)
-			
+
 			if (err != nil) != tt.expectError {
 				t.Errorf("HasUnpushedCommits() error = %v, expectError %v", err, tt.expectError)
 				return
 			}
-			
+
 			// In test environment, we expect errors, but we can test the structure
 			if err != nil {
 				t.Logf("HasUnpushedCommits failed as expected: %v", err)
@@ -725,7 +725,7 @@ func TestManagerHasUnpushedCommits(t *testing.T) {
 func TestManagerHasUnpushedCommitsStructure(t *testing.T) {
 	// Test the structure of HasUnpushedCommits
 	m := &manager{repoRoot: "/tmp"}
-	
+
 	// Test with a branch name
 	hasUnpushed, count, err := m.HasUnpushedCommits("main")
 	if err != nil {
@@ -809,9 +809,9 @@ func TestValidateBranchName(t *testing.T) {
 			if runtime.GOOS == "windows" && strings.Contains(tt.branchName, "`") {
 				t.Skip("Skipping backtick test on Windows due to shell interpretation differences")
 			}
-			
+
 			err := validateBranchName(tt.branchName)
-			
+
 			if tt.shouldError {
 				if err == nil {
 					t.Errorf("Expected error for branch name '%s', but got none", tt.branchName)
@@ -897,9 +897,9 @@ func TestValidatePath(t *testing.T) {
 				t.Skip("Skipping /etc directory test on Windows")
 				return
 			}
-			
+
 			err := validatePath(tt.path)
-			
+
 			if tt.shouldError {
 				if err == nil {
 					t.Errorf("Expected error for path '%s', but got none", tt.path)
@@ -919,7 +919,7 @@ func TestValidatePath(t *testing.T) {
 
 func TestManagerAddWithSecurityValidation(t *testing.T) {
 	m := &manager{repoRoot: "/tmp"}
-	
+
 	// Test malicious branch name
 	err := m.Add("/tmp/test", "branch;rm -rf /", false)
 	if err == nil {
@@ -927,7 +927,7 @@ func TestManagerAddWithSecurityValidation(t *testing.T) {
 	} else if !strings.Contains(err.Error(), "invalid branch name") {
 		t.Errorf("Expected branch validation error, got: %s", err.Error())
 	}
-	
+
 	// Test malicious path
 	err = m.Add("/tmp/test;malicious", "valid-branch", false)
 	if err == nil {
@@ -939,7 +939,7 @@ func TestManagerAddWithSecurityValidation(t *testing.T) {
 
 func TestManagerRemoveWithSecurityValidation(t *testing.T) {
 	m := &manager{repoRoot: "/tmp"}
-	
+
 	// Test malicious path
 	err := m.Remove("/tmp/test;rm -rf /", false)
 	if err == nil {
@@ -951,7 +951,7 @@ func TestManagerRemoveWithSecurityValidation(t *testing.T) {
 
 func TestManagerDeleteBranchWithSecurityValidation(t *testing.T) {
 	m := &manager{repoRoot: "/tmp"}
-	
+
 	// Test malicious branch name
 	err := m.DeleteBranch("branch;rm -rf /", false)
 	if err == nil {

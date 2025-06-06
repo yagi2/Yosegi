@@ -30,19 +30,19 @@ func simpleSelectWorktreeWithFiles(worktrees []git.Worktree, output FileInterfac
 	}
 
 	// Display worktree list
-	fmt.Fprintln(output, "\n🌲 Git Worktrees:")
-	fmt.Fprintln(output, strings.Repeat("-", 60))
-	
+	_, _ = fmt.Fprintln(output, "\n🌲 Git Worktrees:")
+	_, _ = fmt.Fprintln(output, strings.Repeat("-", 60))
+
 	for i, wt := range worktrees {
 		status := "  "
 		if wt.IsCurrent {
 			status = "* "
 		}
-		fmt.Fprintf(output, "%s%d) %s (%s)\n", status, i+1, wt.Path, wt.Branch)
+		_, _ = fmt.Fprintf(output, "%s%d) %s (%s)\n", status, i+1, wt.Path, wt.Branch)
 	}
-	
-	fmt.Fprintln(output, strings.Repeat("-", 60))
-	fmt.Fprint(output, "Select worktree (1-", len(worktrees), ") or 'q' to quit: ")
+
+	_, _ = fmt.Fprintln(output, strings.Repeat("-", 60))
+	_, _ = fmt.Fprint(output, "Select worktree (1-", len(worktrees), ") or 'q' to quit: ")
 
 	// Read user input
 	reader := bufio.NewReader(input)
@@ -51,27 +51,27 @@ func simpleSelectWorktreeWithFiles(worktrees []git.Worktree, output FileInterfac
 		if err != nil {
 			return nil, fmt.Errorf("failed to read input: %w", err)
 		}
-		
+
 		inputStr = strings.TrimSpace(inputStr)
-		
+
 		// Check for quit
 		if inputStr == "q" || inputStr == "Q" {
 			return nil, fmt.Errorf("selection cancelled")
 		}
-		
+
 		// Try to parse as number
 		num, err := strconv.Atoi(inputStr)
 		if err != nil {
-			fmt.Fprintf(output, "Invalid input. Please enter a number (1-%d) or 'q' to quit: ", len(worktrees))
+			_, _ = fmt.Fprintf(output, "Invalid input. Please enter a number (1-%d) or 'q' to quit: ", len(worktrees))
 			continue
 		}
-		
+
 		// Check range
 		if num < 1 || num > len(worktrees) {
-			fmt.Fprintf(output, "Invalid selection. Please enter a number (1-%d) or 'q' to quit: ", len(worktrees))
+			_, _ = fmt.Fprintf(output, "Invalid selection. Please enter a number (1-%d) or 'q' to quit: ", len(worktrees))
 			continue
 		}
-		
+
 		return &worktrees[num-1], nil
 	}
 }

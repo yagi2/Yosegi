@@ -79,14 +79,14 @@ func (k *KeyboardSelector) Run() (*git.Worktree, error) {
 func (k *KeyboardSelector) setRawMode() error {
 	// Use stty to set raw mode
 	cmd := exec.Command("stty", "-echo", "-icanon", "min", "1", "time", "0")
-	
+
 	// Convert to *os.File if possible, otherwise use default stdin/stdout
 	if osInput, ok := k.input.(*os.File); ok {
 		cmd.Stdin = osInput
 	} else {
 		cmd.Stdin = os.Stdin
 	}
-	
+
 	if osOutput, ok := k.output.(*os.File); ok {
 		cmd.Stdout = osOutput
 		cmd.Stderr = osOutput
@@ -94,7 +94,7 @@ func (k *KeyboardSelector) setRawMode() error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	
+
 	return cmd.Run()
 }
 
@@ -102,14 +102,14 @@ func (k *KeyboardSelector) setRawMode() error {
 func (k *KeyboardSelector) restoreMode() {
 	// Restore terminal settings
 	cmd := exec.Command("stty", "echo", "icanon")
-	
+
 	// Convert to *os.File if possible, otherwise use default stdin/stdout
 	if osInput, ok := k.input.(*os.File); ok {
 		cmd.Stdin = osInput
 	} else {
 		cmd.Stdin = os.Stdin
 	}
-	
+
 	if osOutput, ok := k.output.(*os.File); ok {
 		cmd.Stdout = osOutput
 		cmd.Stderr = osOutput
@@ -117,7 +117,7 @@ func (k *KeyboardSelector) restoreMode() {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	
+
 	_ = cmd.Run() // Explicitly ignore errors during cleanup
 }
 
@@ -159,11 +159,11 @@ func (k *KeyboardSelector) readKey() (string, error) {
 // render draws the current state of the selector
 func (k *KeyboardSelector) render() {
 	// Clear screen and move cursor to top
-	fmt.Fprint(k.output, "\033[2J\033[H")
+	_, _ = fmt.Fprint(k.output, "\033[2J\033[H")
 
 	// Title
-	fmt.Fprintf(k.output, "\033[1m🌲 Git Worktrees\033[0m\n")
-	fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
+	_, _ = fmt.Fprintf(k.output, "\033[1m🌲 Git Worktrees\033[0m\n")
+	_, _ = fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
 
 	// Worktree list
 	for i, wt := range k.worktrees {
@@ -174,18 +174,18 @@ func (k *KeyboardSelector) render() {
 
 		// Highlight current selection
 		if i == k.cursor {
-			fmt.Fprintf(k.output, "\033[7m") // Reverse video
+			_, _ = fmt.Fprintf(k.output, "\033[7m") // Reverse video
 		}
 
-		fmt.Fprintf(k.output, "%s%s (%s)\033[0m\n", status, wt.Path, wt.Branch)
+		_, _ = fmt.Fprintf(k.output, "%s%s (%s)\033[0m\n", status, wt.Path, wt.Branch)
 	}
 
 	// Help text
-	fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
-	fmt.Fprintf(k.output, "\033[2m↑/k up  ↓/j down  Enter select  q quit\033[0m\n")
+	_, _ = fmt.Fprintf(k.output, "%s\n", strings.Repeat("-", 60))
+	_, _ = fmt.Fprintf(k.output, "\033[2m↑/k up  ↓/j down  Enter select  q quit\033[0m\n")
 }
 
 // clearScreen clears the screen
 func (k *KeyboardSelector) clearScreen() {
-	fmt.Fprint(k.output, "\033[2J\033[H")
+	_, _ = fmt.Fprint(k.output, "\033[2J\033[H")
 }
