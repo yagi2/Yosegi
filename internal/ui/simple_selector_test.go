@@ -183,7 +183,7 @@ func TestSimpleSelectWorktreeDisplayFormat(t *testing.T) {
 	var output bytes.Buffer
 	input := &mockStringReader{strings.NewReader("q\n")} // Quit immediately
 	
-	simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
+	_, _ = simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
 	
 	outputStr := output.String()
 	
@@ -282,6 +282,6 @@ func BenchmarkSimpleSelectWorktreeDisplay(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var output bytes.Buffer
 		input := &mockStringReader{strings.NewReader("q\n")}
-		simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
+		_, _ = simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})
 	}
 }

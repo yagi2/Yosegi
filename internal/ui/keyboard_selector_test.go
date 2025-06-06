@@ -325,6 +325,6 @@ func BenchmarkKeyboardSelectorReadKey(b *testing.B) {
 		var output bytes.Buffer
 		input := &mockKeyReader{data: keyData}
 		selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{input}, &mockFile{&output})
-		selector.readKey()
+		_, _ = selector.readKey() // Ignore return value and error in test
 	}
 }

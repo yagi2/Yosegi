@@ -264,8 +264,7 @@ func (m *manager) Remove(path string, force bool) error {
 				// Try remove again after pruning
 				cmd := exec.Command("git", args...)
 				cmd.Dir = m.repoRoot
-				output, err = cmd.CombinedOutput()
-				if err == nil {
+				if _, err = cmd.CombinedOutput(); err == nil {
 					return nil
 				}
 			} else {
@@ -391,7 +390,9 @@ func (m *manager) HasUnpushedCommits(branch string) (bool, int, error) {
 			return false, 0, fmt.Errorf("failed to count commits: %w", countErr)
 		}
 		count := 0
-		fmt.Sscanf(strings.TrimSpace(string(countOutput)), "%d", &count)
+		if _, err := fmt.Sscanf(strings.TrimSpace(string(countOutput)), "%d", &count); err != nil {
+			return false, 0, fmt.Errorf("failed to parse commit count: %w", err)
+		}
 		return count > 0, count, nil
 	}
 
@@ -407,7 +408,9 @@ func (m *manager) HasUnpushedCommits(branch string) (bool, int, error) {
 	}
 
 	count := 0
-	fmt.Sscanf(strings.TrimSpace(string(output)), "%d", &count)
+	if _, err := fmt.Sscanf(strings.TrimSpace(string(output)), "%d", &count); err != nil {
+		return false, 0, fmt.Errorf("failed to parse commit count: %w", err)
+	}
 
 	return count > 0, count, nil
 }
