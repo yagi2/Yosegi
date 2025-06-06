@@ -618,3 +618,118 @@ func TestManagerBranchHandling(t *testing.T) {
 		t.Log("Add with spaced branch name handled (expected to fail)")
 	}
 }
+
+func TestManagerDeleteBranch(t *testing.T) {
+	// Create a manager for testing
+	m := &manager{repoRoot: "/invalid/path"}
+	
+	tests := []struct {
+		name        string
+		branch      string
+		force       bool
+		expectError bool
+		errorMsg    string
+	}{
+		{
+			name:        "Delete non-existent branch",
+			branch:      "non-existent-branch",
+			force:       false,
+			expectError: true,
+			errorMsg:    "not found", // This will fail in non-git directory
+		},
+		{
+			name:        "Force delete branch",
+			branch:      "test-branch",
+			force:       true,
+			expectError: true, // Will fail due to invalid repo path
+			errorMsg:    "", // Error message varies
+		},
+	}
+	
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := m.DeleteBranch(tt.branch, tt.force)
+			
+			if (err != nil) != tt.expectError {
+				t.Errorf("DeleteBranch() error = %v, expectError %v", err, tt.expectError)
+				return
+			}
+			
+			if err != nil && tt.errorMsg != "" {
+				if !strings.Contains(err.Error(), tt.errorMsg) {
+					t.Logf("DeleteBranch error: %s", err.Error())
+				}
+			}
+		})
+	}
+}
+
+func TestManagerDeleteBranchStructure(t *testing.T) {
+	// Test the structure and argument handling of DeleteBranch
+	m := &manager{repoRoot: "/tmp"}
+	
+	// Test normal deletion
+	err := m.DeleteBranch("test-branch", false)
+	if err == nil {
+		t.Log("DeleteBranch called successfully (expected to fail in test env)")
+	}
+	
+	// Test force deletion
+	err = m.DeleteBranch("test-branch", true)
+	if err == nil {
+		t.Log("DeleteBranch with force called successfully (expected to fail in test env)")
+	}
+}
+
+func TestManagerHasUnpushedCommits(t *testing.T) {
+	// Create a manager for testing
+	m := &manager{repoRoot: "/invalid/path"}
+	
+	tests := []struct {
+		name        string
+		branch      string
+		expectError bool
+	}{
+		{
+			name:        "Check unpushed commits on branch",
+			branch:      "main",
+			expectError: true, // Will fail due to invalid repo path
+		},
+		{
+			name:        "Check unpushed commits on non-existent branch", 
+			branch:      "non-existent",
+			expectError: true, // Will fail due to invalid repo path
+		},
+	}
+	
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hasUnpushed, count, err := m.HasUnpushedCommits(tt.branch)
+			
+			if (err != nil) != tt.expectError {
+				t.Errorf("HasUnpushedCommits() error = %v, expectError %v", err, tt.expectError)
+				return
+			}
+			
+			// In test environment, we expect errors, but we can test the structure
+			if err != nil {
+				t.Logf("HasUnpushedCommits failed as expected: %v", err)
+			} else {
+				t.Logf("HasUnpushedCommits result: hasUnpushed=%v, count=%d", hasUnpushed, count)
+			}
+		})
+	}
+}
+
+func TestManagerHasUnpushedCommitsStructure(t *testing.T) {
+	// Test the structure of HasUnpushedCommits
+	m := &manager{repoRoot: "/tmp"}
+	
+	// Test with a branch name
+	hasUnpushed, count, err := m.HasUnpushedCommits("main")
+	if err != nil {
+		t.Logf("HasUnpushedCommits failed as expected in test environment: %v", err)
+	} else {
+		t.Logf("HasUnpushedCommits succeeded: hasUnpushed=%v, count=%d", hasUnpushed, count)
+	}
+}

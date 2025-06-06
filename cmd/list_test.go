@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
+	"github.com/yagi2/yosegi/internal/git"
 )
 
 func TestListCommand(t *testing.T) {
@@ -386,5 +387,73 @@ func BenchmarkListCommandHelp(b *testing.B) {
 			// Log error but continue benchmark
 			b.Logf("Command execution error: %v", err)
 		}
+	}
+}
+
+func TestRunRemoveWithSelectedWorktree(t *testing.T) {
+	tests := []struct {
+		name        string
+		worktree    git.Worktree
+		expectError bool
+		errorMsg    string
+	}{
+		{
+			name: "Cannot remove current worktree",
+			worktree: git.Worktree{
+				Path:      "/current/path",
+				Branch:    "main",
+				IsCurrent: true,
+			},
+			expectError: true,
+			errorMsg:    "cannot remove current worktree",
+		},
+		{
+			name: "Non-current worktree removal test structure",
+			worktree: git.Worktree{
+				Path:      "/test/path",
+				Branch:    "feature",
+				IsCurrent: false,
+			},
+			expectError: true, // Will fail in test environment
+			errorMsg:    "failed to", // Generic error prefix
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := runRemoveWithSelectedWorktree(tt.worktree)
+			
+			if (err != nil) != tt.expectError {
+				t.Errorf("runRemoveWithSelectedWorktree() error = %v, expectError %v", err, tt.expectError)
+				return
+			}
+			
+			if err != nil && tt.errorMsg != "" {
+				if !strings.Contains(err.Error(), tt.errorMsg) {
+					t.Errorf("Expected error to contain '%s', got: %s", tt.errorMsg, err.Error())
+				}
+			}
+		})
+	}
+}
+
+func TestRunRemoveWithSelectedWorktreeCurrentCheck(t *testing.T) {
+	// Test specifically for current worktree check
+	currentWorktree := git.Worktree{
+		Path:      "/current",
+		Branch:    "main", 
+		IsCurrent: true,
+	}
+	
+	err := runRemoveWithSelectedWorktree(currentWorktree)
+	
+	if err == nil {
+		t.Error("Expected error when trying to remove current worktree")
+		return
+	}
+	
+	expectedMsg := "cannot remove current worktree"
+	if err.Error() != expectedMsg {
+		t.Errorf("Expected error message '%s', got '%s'", expectedMsg, err.Error())
 	}
 }

@@ -13,12 +13,17 @@ import (
 type KeyboardSelector struct {
 	worktrees []git.Worktree
 	cursor    int
-	input     *os.File
-	output    *os.File
+	input     FileInterface
+	output    FileInterface
 }
 
 // NewKeyboardSelector creates a new keyboard-based selector
 func NewKeyboardSelector(worktrees []git.Worktree, input, output *os.File) *KeyboardSelector {
+	return newKeyboardSelectorWithFiles(worktrees, input, output)
+}
+
+// newKeyboardSelectorWithFiles is the testable version that accepts interfaces
+func newKeyboardSelectorWithFiles(worktrees []git.Worktree, input, output FileInterface) *KeyboardSelector {
 	return &KeyboardSelector{
 		worktrees: worktrees,
 		cursor:    0,
@@ -74,9 +79,22 @@ func (k *KeyboardSelector) Run() (*git.Worktree, error) {
 func (k *KeyboardSelector) setRawMode() error {
 	// Use stty to set raw mode
 	cmd := exec.Command("stty", "-echo", "-icanon", "min", "1", "time", "0")
-	cmd.Stdin = k.input
-	cmd.Stdout = k.output
-	cmd.Stderr = k.output
+	
+	// Convert to *os.File if possible, otherwise use default stdin/stdout
+	if osInput, ok := k.input.(*os.File); ok {
+		cmd.Stdin = osInput
+	} else {
+		cmd.Stdin = os.Stdin
+	}
+	
+	if osOutput, ok := k.output.(*os.File); ok {
+		cmd.Stdout = osOutput
+		cmd.Stderr = osOutput
+	} else {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
+	
 	return cmd.Run()
 }
 
@@ -84,9 +102,22 @@ func (k *KeyboardSelector) setRawMode() error {
 func (k *KeyboardSelector) restoreMode() {
 	// Restore terminal settings
 	cmd := exec.Command("stty", "echo", "icanon")
-	cmd.Stdin = k.input
-	cmd.Stdout = k.output
-	cmd.Stderr = k.output
+	
+	// Convert to *os.File if possible, otherwise use default stdin/stdout
+	if osInput, ok := k.input.(*os.File); ok {
+		cmd.Stdin = osInput
+	} else {
+		cmd.Stdin = os.Stdin
+	}
+	
+	if osOutput, ok := k.output.(*os.File); ok {
+		cmd.Stdout = osOutput
+		cmd.Stderr = osOutput
+	} else {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
+	
 	cmd.Run() // Ignore errors during cleanup
 }
 
