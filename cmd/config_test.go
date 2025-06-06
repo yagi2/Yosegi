@@ -58,15 +58,22 @@ func TestConfigInitCommand(t *testing.T) {
 		}
 	}()
 
-	// Mock home directory
+	// Mock home directory for cross-platform compatibility
 	originalHome := os.Getenv("HOME")
+	originalUserProfile := os.Getenv("USERPROFILE")
 	defer func() {
 		if err := os.Setenv("HOME", originalHome); err != nil {
 			t.Logf("Failed to restore HOME: %v", err)
 		}
+		if err := os.Setenv("USERPROFILE", originalUserProfile); err != nil {
+			t.Logf("Failed to restore USERPROFILE: %v", err)
+		}
 	}()
 	if err := os.Setenv("HOME", tmpDir); err != nil {
 		t.Fatalf("Failed to set HOME: %v", err)
+	}
+	if err := os.Setenv("USERPROFILE", tmpDir); err != nil {
+		t.Fatalf("Failed to set USERPROFILE: %v", err)
 	}
 
 	// Create test command
@@ -95,8 +102,12 @@ func TestConfigInitCommand(t *testing.T) {
 	// Command executed successfully - output verification not needed for unit test
 	_ = buf.String()
 
-	// Check that config file was created
-	expectedPath := filepath.Join(tmpDir, ".config", "yosegi", "config.yaml")
+	// Check that config file was created - use UserHomeDir to get actual path
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatalf("Failed to get user home dir: %v", err)
+	}
+	expectedPath := filepath.Join(homeDir, ".config", "yosegi", "config.yaml")
 	if _, err := os.Stat(expectedPath); os.IsNotExist(err) {
 		t.Errorf("Config file should have been created at %s", expectedPath)
 	}
