@@ -356,13 +356,14 @@ func TestListCommandIntegration(t *testing.T) {
 // Benchmark test
 func BenchmarkListCommandCreation(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = &cobra.Command{
+	for range b.N {
+		cmd := &cobra.Command{
 			Use:     "list",
 			Short:   "List all git worktrees",
 			Long:    "Display an interactive list of all git worktrees in the repository.",
 			Aliases: []string{"ls", "l"},
 		}
+		_ = cmd // Explicitly ignore for benchmark
 	}
 }
 
@@ -379,7 +380,7 @@ func BenchmarkListCommandHelp(b *testing.B) {
 	testCmd.SetErr(&buf)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
 		if err := testCmd.Execute(); err != nil {
