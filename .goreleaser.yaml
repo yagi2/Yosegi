@@ -36,11 +36,11 @@ builds:
 
 # Archive configuration
 archives:
-  - format: tar.gz
+  - formats: ["tar.gz"]
     # use zip for windows archives
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     files:
       - README.md
@@ -54,7 +54,7 @@ checksum:
 
 # Snapshot configuration (for development builds)
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 # Changelog configuration
 changelog:
@@ -143,11 +143,6 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--platform=linux/amd64"
 
-# SBOMs (Software Bill of Materials)
-sboms:
-  - artifacts: archive
-  - id: source
-    artifacts: source
 
 # Signing configuration (optional, for enhanced security)
 signs:
