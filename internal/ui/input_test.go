@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -651,11 +652,11 @@ func TestNewWorktreeInputDependency(t *testing.T) {
 		branchName string
 		expected   string
 	}{
-		{"feature/new-feature", "../feature-new-feature"},
-		{"main", "../main"},
+		{"feature/new-feature", filepath.Join("..", "feature-new-feature")},
+		{"main", filepath.Join("..", "main")},
 		{"", ""},
-		{"  feature/test  ", "../feature-test"},
-		{"complex/branch/name", "../complex-branch-name"},
+		{"  feature/test  ", filepath.Join("..", "feature-test")},
+		{"complex/branch/name", filepath.Join("..", "complex-branch-name")},
 	}
 	
 	for _, tt := range tests {

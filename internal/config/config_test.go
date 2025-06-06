@@ -777,7 +777,12 @@ func TestSaveErrors(t *testing.T) {
 	}()
 
 	// Set both HOME (Unix) and USERPROFILE (Windows) to invalid paths
-	invalidPath := "/dev/null/invalid"
+	var invalidPath string
+	if runtime.GOOS == "windows" {
+		invalidPath = "Z:\\invalid\\path\\that\\does\\not\\exist"
+	} else {
+		invalidPath = "/dev/null/invalid"
+	}
 	if err := os.Setenv("HOME", invalidPath); err != nil {
 		t.Fatalf("Failed to set HOME: %v", err)
 	}
