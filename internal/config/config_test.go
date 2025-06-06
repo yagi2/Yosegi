@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -557,6 +558,10 @@ func TestConfigStructValidation(t *testing.T) {
 // Test edge cases and error conditions
 func TestConfigEdgeCases(t *testing.T) {
 	t.Run("Save to read-only directory", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping permission test on Windows")
+		}
+
 		tmpDir, err := os.MkdirTemp("", "yosegi-readonly-test-*")
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
@@ -596,6 +601,9 @@ func TestConfigEdgeCases(t *testing.T) {
 	})
 
 	t.Run("Load with permission denied", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping permission test on Windows")
+		}
 		if os.Getuid() == 0 {
 			t.Skip("Skipping permission test when running as root")
 		}

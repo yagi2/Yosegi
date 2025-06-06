@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -247,6 +248,9 @@ func TestConfigCommandStructure(t *testing.T) {
 func TestConfigCommandWithErrors(t *testing.T) {
 	// Test config init with read-only filesystem
 	t.Run("Config init with permission error", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping permission test on Windows")
+		}
 		if os.Getuid() == 0 {
 			t.Skip("Skipping permission test when running as root")
 		}

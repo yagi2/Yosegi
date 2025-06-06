@@ -138,14 +138,19 @@ func FindGitRoot(startPath string) (string, error) {
 			if strings.HasPrefix(string(content), "gitdir:") {
 				// Extract the main repo path from the gitdir reference
 				gitdirPath := strings.TrimSpace(strings.TrimPrefix(string(content), "gitdir:"))
+				// Normalize the path for the current OS
+				gitdirPath = filepath.FromSlash(gitdirPath)
 				if filepath.IsAbs(gitdirPath) {
 					// Find the main repo from the worktree gitdir path
 					// e.g., /path/to/repo/.git/worktrees/branch -> /path/to/repo
-					parts := strings.Split(gitdirPath, string(filepath.Separator))
-					for i, part := range parts {
-						if part == ".git" && i > 0 {
-							return strings.Join(parts[:i], string(filepath.Separator)), nil
-						}
+					// Find .git directory and get parent path
+					gitIndex := strings.Index(gitdirPath, string(filepath.Separator)+".git"+string(filepath.Separator))
+					if gitIndex != -1 {
+						return gitdirPath[:gitIndex], nil
+					}
+					// Handle case where .git is at the end
+					if strings.HasSuffix(gitdirPath, string(filepath.Separator)+".git") {
+						return strings.TrimSuffix(gitdirPath, string(filepath.Separator)+".git"), nil
 					}
 				}
 			}

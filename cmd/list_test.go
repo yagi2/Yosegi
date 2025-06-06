@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bytes"
+	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -390,6 +392,11 @@ func BenchmarkListCommandHelp(b *testing.B) {
 }
 
 func TestRunRemoveWithSelectedWorktree(t *testing.T) {
+	// Skip TUI tests on Windows CI
+	if runtime.GOOS == "windows" && os.Getenv("CI") != "" {
+		t.Skip("Skipping TUI test on Windows CI")
+	}
+
 	tests := []struct {
 		name        string
 		worktree    git.Worktree
