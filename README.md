@@ -20,7 +20,6 @@ Yosegi is a cross-platform CLI tool designed for the modern "Vibe Coding" era, p
 - ⚡ **Keyboard Navigation**: Vim-style navigation (j/k) and arrow keys
 - 🛡️ **Safety Features**: Confirmation prompts and accidental deletion prevention
 - 🌍 **Cross-Platform**: Full support for Windows, macOS, and Linux
-- 🐳 **Docker Support**: Multi-architecture container support
 - 📦 **Lightweight**: Single binary with no external dependencies
 
 ## Installation
@@ -58,18 +57,6 @@ Download the appropriate binary for your platform from the [releases page](https
 - **macOS**: `yosegi_Darwin_x86_64.tar.gz` (Intel), `yosegi_Darwin_arm64.tar.gz` (Apple Silicon)
 - **Windows**: `yosegi_Windows_x86_64.zip` (AMD64), `yosegi_Windows_arm64.zip` (ARM64)
 
-### Docker
-
-```bash
-# Run latest version
-docker run --rm -it ghcr.io/yagi2/yosegi:latest
-
-# Run specific version
-docker run --rm -it ghcr.io/yagi2/yosegi:v1.0.0
-
-# Mount local repository and run
-docker run --rm -it -v $(pwd):/workspace -w /workspace ghcr.io/yagi2/yosegi:latest
-```
 
 ### Package Managers
 
@@ -348,18 +335,6 @@ task lint
 task ci
 ```
 
-### Docker Development
-
-```bash
-# Build Docker image
-docker build -t yosegi:dev .
-
-# Or using Task
-task docker-build
-
-# Multi-architecture build
-task docker-build-multi
-```
 
 ### Available Task Commands
 

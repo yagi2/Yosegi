@@ -127,21 +127,6 @@ release:
 
 # Package managers are not configured - using go install only
 
-# Docker configuration
-dockers:
-  - image_templates:
-      - "ghcr.io/yagi2/yosegi:{{ .Tag }}"
-      - "ghcr.io/yagi2/yosegi:v{{ .Major }}"
-      - "ghcr.io/yagi2/yosegi:v{{ .Major }}.{{ .Minor }}"
-      - "ghcr.io/yagi2/yosegi:latest"
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--platform=linux/amd64"
 
 
 # Signing configuration (optional, for enhanced security)
