@@ -24,30 +24,27 @@ go install github.com/yagi2/yosegi@latest
 
 ### パッケージマネージャー
 
-#### Homebrew (macOS/Linux)
+#### Homebrew (macOS/Linux) - 🚧 準備中
 
 ```bash
+# リリース後に利用可能になります
 brew tap yagi2/homebrew-tap
 brew install yosegi
 ```
 
-#### Scoop (Windows)
+#### Scoop (Windows) - 🚧 準備中
 
 ```bash
+# リリース後に利用可能になります  
 scoop bucket add yagi2 https://github.com/yagi2/scoop-bucket
 scoop install yosegi
 ```
 
-#### Arch Linux (AUR)
+#### Arch Linux (AUR) - 🚧 準備中
 
 ```bash
-# yayを使用
+# リリース後に利用可能になります
 yay -S yosegi-bin
-
-# pacmanとmakepkgを使用
-git clone https://aur.archlinux.org/yosegi-bin.git
-cd yosegi-bin
-makepkg -si
 ```
 
 ### プリビルドバイナリ
