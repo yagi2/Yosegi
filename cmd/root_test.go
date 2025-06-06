@@ -139,7 +139,7 @@ func TestRootCommandConfiguration(t *testing.T) {
 	if rootCmd.Version == "" {
 		t.Errorf("Expected version to be set, got empty string")
 	}
-	
+
 	// Version should contain either "dev" or a version number
 	if !strings.Contains(rootCmd.Version, "dev") && !strings.Contains(rootCmd.Version, "v") {
 		t.Errorf("Expected version to contain 'dev' or version number, got '%s'", rootCmd.Version)

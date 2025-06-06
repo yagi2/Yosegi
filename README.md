@@ -12,6 +12,8 @@ Interactive git worktree management tool with a beautiful TUI interface
 
 Yosegi is a cross-platform CLI tool designed for the modern "Vibe Coding" era, providing intuitive and visual management of git worktrees. Like `tig` or `peco`, it offers an excellent visual interface for easily managing multiple git worktrees.
 
+![Demo of Yosegi's interactive TUI for git worktree management](./images/demo.gif)
+
 ## Features
 
 - 🎯 **Interactive UI**: Beautiful terminal interface built with Bubble Tea and Lip Gloss

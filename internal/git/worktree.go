@@ -45,32 +45,32 @@ func validateBranchName(branch string) error {
 	if branch == "" {
 		return fmt.Errorf("branch name cannot be empty")
 	}
-	
+
 	// Check for git-specific restrictions
 	if strings.HasPrefix(branch, "-") {
 		return fmt.Errorf("branch name cannot start with a dash")
 	}
-	
+
 	if strings.HasPrefix(branch, ".") || strings.HasSuffix(branch, ".") {
 		return fmt.Errorf("branch name cannot start or end with a dot")
 	}
-	
+
 	if strings.Contains(branch, "..") {
 		return fmt.Errorf("branch name cannot contain consecutive dots")
 	}
-	
+
 	// Check for dangerous characters that could be interpreted as shell commands
 	for _, char := range dangerousShellChars {
 		if strings.Contains(branch, char) {
 			return fmt.Errorf("branch name contains dangerous character: %s", char)
 		}
 	}
-	
+
 	// Ensure it matches the valid pattern
 	if !validBranchName.MatchString(branch) {
 		return fmt.Errorf("branch name contains invalid characters")
 	}
-	
+
 	return nil
 }
 
@@ -79,20 +79,20 @@ func validatePath(path string) error {
 	if path == "" {
 		return fmt.Errorf("path cannot be empty")
 	}
-	
+
 	// Check for dangerous characters
 	for _, char := range dangerousShellChars {
 		if strings.Contains(path, char) {
 			return fmt.Errorf("path contains dangerous character: %s", char)
 		}
 	}
-	
+
 	// Prevent malicious directory traversal attempts
 	// Check for patterns that could escape beyond the intended directory
 	if strings.Contains(path, "../../../") {
 		return fmt.Errorf("path contains directory traversal sequences")
 	}
-	
+
 	// Convert to absolute path and check for suspicious patterns
 	absPath, err := filepath.Abs(path)
 	if err == nil {
@@ -104,7 +104,7 @@ func validatePath(path string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -183,11 +183,11 @@ func (m *manager) Add(path, branch string, createBranch bool) error {
 	if err := validatePath(path); err != nil {
 		return fmt.Errorf("invalid path: %w", err)
 	}
-	
+
 	if err := validateBranchName(branch); err != nil {
 		return fmt.Errorf("invalid branch name: %w", err)
 	}
-	
+
 	// Check if branch exists
 	checkCmd := exec.Command("git", "rev-parse", "--verify", fmt.Sprintf("refs/heads/%s", branch))
 	checkCmd.Dir = m.repoRoot
@@ -225,7 +225,7 @@ func (m *manager) Remove(path string, force bool) error {
 	if err := validatePath(path); err != nil {
 		return fmt.Errorf("invalid path: %w", err)
 	}
-	
+
 	// First, try to get the absolute path
 	absPath, err := filepath.Abs(path)
 	if err == nil {
@@ -351,7 +351,7 @@ func (m *manager) DeleteBranch(branch string, force bool) error {
 	if err := validateBranchName(branch); err != nil {
 		return fmt.Errorf("invalid branch name: %w", err)
 	}
-	
+
 	args := []string{"branch", "-d"}
 	if force {
 		args[1] = "-D"
@@ -381,7 +381,7 @@ func (m *manager) HasUnpushedCommits(branch string) (bool, int, error) {
 	if err := validateBranchName(branch); err != nil {
 		return false, 0, fmt.Errorf("invalid branch name: %w", err)
 	}
-	
+
 	// First check if the branch has an upstream
 	upstreamCmd := exec.Command("git", "rev-parse", "--abbrev-ref", fmt.Sprintf("%s@{upstream}", branch))
 	upstreamCmd.Dir = m.repoRoot

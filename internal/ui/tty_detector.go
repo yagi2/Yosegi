@@ -29,22 +29,22 @@ func DetectTTYCapability() TTYCapability {
 				return BasicTTYControl
 			}
 		}
-		
+
 		// Check if stderr is a terminal (fallback method)
 		if isatty.IsTerminal(os.Stderr.Fd()) {
 			return BasicTTYControl
 		}
-		
+
 		// For development/testing: try to force BasicTTYControl when appropriate
 		// If stdin looks like it could be a terminal, try basic control
 		if isatty.IsTerminal(os.Stdin.Fd()) {
 			return BasicTTYControl
 		}
-		
+
 		// No TTY access at all
 		return NoTTYControl
 	}
-	
+
 	// Full terminal environment available
 	return FullTTYControl
 }
@@ -55,7 +55,7 @@ func GetTTYFiles(capability TTYCapability) (*os.File, *os.File, func(), error) {
 	case FullTTYControl:
 		// Normal terminal environment
 		return os.Stdin, os.Stderr, func() {}, nil
-		
+
 	case BasicTTYControl:
 		if runtime.GOOS != "windows" {
 			// Unix: try to open /dev/tty
@@ -69,11 +69,11 @@ func GetTTYFiles(capability TTYCapability) (*os.File, *os.File, func(), error) {
 			// Windows: use stdin/stderr
 			return os.Stdin, os.Stderr, func() {}, nil
 		}
-		
+
 	case NoTTYControl:
 		// Fallback - return stdin/stderr even though they might not work
 		return os.Stdin, os.Stderr, func() {}, nil
-		
+
 	default:
 		return os.Stdin, os.Stderr, func() {}, nil
 	}

@@ -43,7 +43,7 @@ var listCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			
+
 			// Print the selected worktree path to stdout
 			fmt.Println(selectedWorktree.Path)
 			return nil

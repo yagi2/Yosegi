@@ -13,27 +13,27 @@ func TestNewKeyboardSelector(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var input, output bytes.Buffer
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
-	
+
 	if selector == nil {
 		t.Error("Expected non-nil selector")
 		return
 	}
-	
+
 	if len(selector.worktrees) != 1 {
 		t.Errorf("Expected 1 worktree, got %d", len(selector.worktrees))
 	}
-	
+
 	if selector.cursor != 0 {
 		t.Errorf("Expected cursor to start at 0, got %d", selector.cursor)
 	}
-	
+
 	if selector.input == nil {
 		t.Error("Expected non-nil input file")
 	}
-	
+
 	if selector.output == nil {
 		t.Error("Expected non-nil output file")
 	}
@@ -42,9 +42,9 @@ func TestNewKeyboardSelector(t *testing.T) {
 func TestKeyboardSelectorEmptyWorktrees(t *testing.T) {
 	var worktrees []git.Worktree
 	var input, output bytes.Buffer
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
-	
+
 	// This test should focus on the structure since Run() requires terminal control
 	if len(selector.worktrees) != 0 {
 		t.Errorf("Expected 0 worktrees, got %d", len(selector.worktrees))
@@ -55,7 +55,7 @@ func TestKeyboardSelectorReadKey(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	tests := []struct {
 		name     string
 		input    []byte
@@ -112,16 +112,16 @@ func TestKeyboardSelectorReadKey(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var output bytes.Buffer
 			input := &mockKeyReader{data: tt.input}
-			
+
 			selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{input}, &mockFile{&output})
-			
+
 			key, err := selector.readKey()
-			
+
 			if err != nil {
 				t.Errorf("readKey() error = %v", err)
 				return
 			}
-			
+
 			if key != tt.expected {
 				t.Errorf("readKey() = %q, expected %q", key, tt.expected)
 			}
@@ -134,32 +134,32 @@ func TestKeyboardSelectorRender(t *testing.T) {
 		{Path: "/repo/main", Branch: "main", IsCurrent: true},
 		{Path: "/repo/feature", Branch: "feature", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	var input bytes.Buffer
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
 	selector.render()
-	
+
 	// Check for ANSI clear screen sequence
 	if !bytes.Contains(output.Bytes(), []byte("\033[2J\033[H")) {
 		t.Error("Expected clear screen sequence")
 	}
-	
+
 	// Check for title
 	if !bytes.Contains(output.Bytes(), []byte("🌲 Git Worktrees")) {
 		t.Error("Expected title with tree emoji")
 	}
-	
+
 	// Check for worktree entries
 	if !bytes.Contains(output.Bytes(), []byte("* /repo/main (main)")) {
 		t.Error("Expected current worktree to be marked with asterisk")
 	}
-	
+
 	if !bytes.Contains(output.Bytes(), []byte("  /repo/feature (feature)")) {
 		t.Error("Expected non-current worktree to be displayed")
 	}
-	
+
 	// Check for help text
 	if !bytes.Contains(output.Bytes(), []byte("↑/k up")) {
 		t.Error("Expected help text for navigation")
@@ -170,13 +170,13 @@ func TestKeyboardSelectorClearScreen(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	var input bytes.Buffer
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
 	selector.clearScreen()
-	
+
 	// Check for ANSI clear screen sequence
 	if !bytes.Contains(output.Bytes(), []byte("\033[2J\033[H")) {
 		t.Error("Expected clear screen sequence")
@@ -187,12 +187,12 @@ func TestKeyboardSelectorSetRawModeFailure(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	input := &errorReader{err: io.ErrUnexpectedEOF}
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{input}, &mockFile{&output})
-	
+
 	// setRawMode should fail with non-TTY input
 	err := selector.setRawMode()
 	if err == nil {
@@ -204,15 +204,15 @@ func TestKeyboardSelectorRestoreMode(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	var input bytes.Buffer
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
-	
+
 	// restoreMode should not panic even if setRawMode was never called
 	selector.restoreMode()
-	
+
 	// This is mainly a smoke test to ensure no panic occurs
 }
 
@@ -226,7 +226,7 @@ func (m *mockKeyReader) Read(p []byte) (n int, err error) {
 	if m.pos >= len(m.data) {
 		return 0, io.EOF
 	}
-	
+
 	n = copy(p, m.data[m.pos:])
 	m.pos += n
 	return n, nil
@@ -254,19 +254,19 @@ func TestNewKeyboardSelectorWrapper(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/test/path", Branch: "main", IsCurrent: false},
 	}
-	
+
 	// This should call the underlying implementation
 	selector := NewKeyboardSelector(worktrees, os.Stdin, os.Stderr)
-	
+
 	if selector == nil {
 		t.Error("NewKeyboardSelector returned nil")
 		return
 	}
-	
+
 	if len(selector.worktrees) != 1 {
 		t.Errorf("Expected 1 worktree, got %d", len(selector.worktrees))
 	}
-	
+
 	if selector.cursor != 0 {
 		t.Errorf("Expected cursor to be 0, got %d", selector.cursor)
 	}
@@ -277,18 +277,18 @@ func TestKeyboardSelectorTerminalCommands(t *testing.T) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	var input bytes.Buffer
-	
+
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
-	
+
 	// Test that setRawMode and restoreMode don't panic
 	// They will likely fail in test environment, but should not crash
 	err := selector.setRawMode()
 	// Don't assert on error since stty may not be available in test environment
 	_ = err
-	
+
 	selector.restoreMode()
 	// This should always complete without panic
 }
@@ -301,11 +301,11 @@ func BenchmarkKeyboardSelectorRender(b *testing.B) {
 		{Path: "/repo/feature-2", Branch: "feature-2", IsCurrent: false},
 		{Path: "/repo/hotfix", Branch: "hotfix", IsCurrent: false},
 	}
-	
+
 	var output bytes.Buffer
 	var input bytes.Buffer
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
-	
+
 	b.ResetTimer()
 	for range b.N {
 		output.Reset()
@@ -317,9 +317,9 @@ func BenchmarkKeyboardSelectorReadKey(b *testing.B) {
 	worktrees := []git.Worktree{
 		{Path: "/path/1", Branch: "main", IsCurrent: false},
 	}
-	
+
 	keyData := []byte{106} // 'j' key
-	
+
 	b.ResetTimer()
 	for range b.N {
 		var output bytes.Buffer

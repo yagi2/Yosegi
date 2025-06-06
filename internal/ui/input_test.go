@@ -608,24 +608,24 @@ func TestNewWorktreeInput(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			model := NewWorktreeInput(tt.title, tt.worktreePathPrefix)
-			
+
 			if model.title != tt.title {
 				t.Errorf("Expected title '%s', got '%s'", tt.title, model.title)
 			}
-			
+
 			if len(model.inputs) != tt.expectedPrompts {
 				t.Errorf("Expected %d inputs, got %d", tt.expectedPrompts, len(model.inputs))
 			}
-			
+
 			if len(model.dependencies) != tt.expectedDeps {
 				t.Errorf("Expected %d dependencies, got %d", tt.expectedDeps, len(model.dependencies))
 			}
-			
+
 			// Test initial state
 			if model.focused != 0 {
 				t.Errorf("Expected focused index to be 0, got %d", model.focused)
 			}
-			
+
 			if model.submitted || model.cancelled {
 				t.Error("Model should not be submitted or cancelled initially")
 			}
@@ -636,17 +636,17 @@ func TestNewWorktreeInput(t *testing.T) {
 func TestNewWorktreeInputDependency(t *testing.T) {
 	// Test the dependency function that updates path based on branch name
 	model := NewWorktreeInput("Test", "../")
-	
+
 	// Test dependency exists
 	if len(model.dependencies) != 1 {
 		t.Fatalf("Expected 1 dependency, got %d", len(model.dependencies))
 	}
-	
+
 	dep := model.dependencies[0]
 	if dep.SourceIndex != 0 || dep.TargetIndex != 1 {
 		t.Errorf("Expected dependency from index 0 to 1, got %d to %d", dep.SourceIndex, dep.TargetIndex)
 	}
-	
+
 	// Test the UpdateFunc
 	tests := []struct {
 		branchName string
@@ -658,7 +658,7 @@ func TestNewWorktreeInputDependency(t *testing.T) {
 		{"  feature/test  ", filepath.Join("..", "feature-test")},
 		{"complex/branch/name", filepath.Join("..", "complex-branch-name")},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("branch_%s", tt.branchName), func(t *testing.T) {
 			result := dep.UpdateFunc(tt.branchName)
@@ -671,17 +671,17 @@ func TestNewWorktreeInputDependency(t *testing.T) {
 
 func TestNewWorktreeInputPrompts(t *testing.T) {
 	model := NewWorktreeInput("Test Title", "../")
-	
+
 	// Verify prompts are set correctly
 	expectedPrompts := []string{
 		"Branch name (e.g., feature/new-feature)",
 		"Worktree directory path (e.g., ../feature-branch)",
 	}
-	
+
 	if len(model.inputs) != len(expectedPrompts) {
 		t.Fatalf("Expected %d inputs, got %d", len(expectedPrompts), len(model.inputs))
 	}
-	
+
 	for i := range expectedPrompts {
 		// Note: We can't directly access the prompt from textinput,
 		// but we can verify the inputs were created

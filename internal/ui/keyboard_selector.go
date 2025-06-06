@@ -79,14 +79,14 @@ func (k *KeyboardSelector) Run() (*git.Worktree, error) {
 func (k *KeyboardSelector) setRawMode() error {
 	// Use stty to set raw mode
 	cmd := exec.Command("stty", "-echo", "-icanon", "min", "1", "time", "0")
-	
+
 	// Convert to *os.File if possible, otherwise use default stdin/stdout
 	if osInput, ok := k.input.(*os.File); ok {
 		cmd.Stdin = osInput
 	} else {
 		cmd.Stdin = os.Stdin
 	}
-	
+
 	if osOutput, ok := k.output.(*os.File); ok {
 		cmd.Stdout = osOutput
 		cmd.Stderr = osOutput
@@ -94,7 +94,7 @@ func (k *KeyboardSelector) setRawMode() error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	
+
 	return cmd.Run()
 }
 
@@ -102,14 +102,14 @@ func (k *KeyboardSelector) setRawMode() error {
 func (k *KeyboardSelector) restoreMode() {
 	// Restore terminal settings
 	cmd := exec.Command("stty", "echo", "icanon")
-	
+
 	// Convert to *os.File if possible, otherwise use default stdin/stdout
 	if osInput, ok := k.input.(*os.File); ok {
 		cmd.Stdin = osInput
 	} else {
 		cmd.Stdin = os.Stdin
 	}
-	
+
 	if osOutput, ok := k.output.(*os.File); ok {
 		cmd.Stdout = osOutput
 		cmd.Stderr = osOutput
@@ -117,7 +117,7 @@ func (k *KeyboardSelector) restoreMode() {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	
+
 	_ = cmd.Run() // Explicitly ignore errors during cleanup
 }
 
