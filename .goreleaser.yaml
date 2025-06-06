@@ -125,55 +125,7 @@ release:
     - 🔒 [Security Policy](https://github.com/yagi2/Yosegi/blob/main/SECURITY.md)
     - 🐛 [Report Issues](https://github.com/yagi2/Yosegi/issues)
 
-# Homebrew configuration (for macOS users)
-# NOTE: Requires creating https://github.com/yagi2/homebrew-tap repository first
-# brews:
-#   - name: yosegi
-#     repository:
-#       owner: yagi2
-#       name: homebrew-tap
-#       branch: main
-#     url_template: "https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#     download_strategy: CurlDownloadStrategy
-#     directory: Formula
-#     homepage: "https://github.com/yagi2/Yosegi"
-#     description: "Interactive git worktree management tool with beautiful TUI"
-#     license: "MIT"
-#     test: |
-#       system "#{bin}/yosegi", "--version"
-#     install: |
-#       bin.install "yosegi"
-
-# Scoop configuration (for Windows users)
-# NOTE: Requires creating https://github.com/yagi2/scoop-bucket repository first
-# scoops:
-#   - name: yosegi
-#     repository:
-#       owner: yagi2
-#       name: scoop-bucket
-#       branch: main
-#     url_template: "https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#     homepage: "https://github.com/yagi2/Yosegi"
-#     description: "Interactive git worktree management tool with beautiful TUI"
-#     license: "MIT"
-
-# AUR configuration (for Arch Linux users)
-# NOTE: Requires AUR_KEY secret with SSH private key for AUR access
-# aurs:
-#   - name: yosegi-bin
-#     homepage: "https://github.com/yagi2/Yosegi"
-#     description: "Interactive git worktree management tool with beautiful TUI"
-#     maintainers:
-#       - "yagi2 <your-email@example.com>"
-#     license: "MIT"
-#     private_key: "{{ .Env.AUR_KEY }}"
-#     git_url: "ssh://aur@aur.archlinux.org/yosegi-bin.git"
-#     package: |-
-#       # bin
-#       install -Dm755 "./yosegi" "${pkgdir}/usr/bin/yosegi"
-#       
-#       # license
-#       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/yosegi/LICENSE"
+# Package managers are not configured - using go install only
 
 # Docker configuration
 dockers:

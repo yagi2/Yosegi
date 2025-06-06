@@ -68,14 +68,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
 
-  update-homebrew:
-    needs: goreleaser
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          formula: yosegi
-          tap: yagi2/homebrew-tap
