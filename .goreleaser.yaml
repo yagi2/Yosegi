@@ -127,8 +127,6 @@ release:
 
 # Package managers are not configured - using go install only
 
-
-
 # Signing configuration (optional, for enhanced security)
 signs:
   - cmd: cosign
@@ -147,7 +145,6 @@ signs:
 # Announcements
 announce:
   skip: "{{gt .Patch 0}}"
-  
 
 # Universal Binaries for macOS
 universal_binaries:
