@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -877,7 +878,7 @@ func TestValidatePath(t *testing.T) {
 			errorMsg:    "directory traversal",
 		},
 		{
-			name:        "Path accessing /etc directory",
+			name:        "Path accessing /etc directory (Unix)",
 			path:        "/etc/passwd",
 			shouldError: true,
 			errorMsg:    "restricted directory",
@@ -886,6 +887,12 @@ func TestValidatePath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Skip /etc directory test on Windows as it doesn't exist
+			if strings.Contains(tt.path, "/etc") && runtime.GOOS == "windows" {
+				t.Skip("Skipping /etc directory test on Windows")
+				return
+			}
+			
 			err := validatePath(tt.path)
 			
 			if tt.shouldError {

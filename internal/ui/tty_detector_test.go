@@ -47,7 +47,7 @@ func TestGetTTYFiles(t *testing.T) {
 		{
 			name:       "BasicTTYControl",
 			capability: BasicTTYControl,
-			expectErr:  true, // In test environment, /dev/tty is not available
+			expectErr:  runtime.GOOS != "windows", // On Windows, falls back to stdin/stderr
 		},
 		{
 			name:       "NoTTYControl",
