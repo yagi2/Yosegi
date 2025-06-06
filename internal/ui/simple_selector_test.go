@@ -279,7 +279,7 @@ func BenchmarkSimpleSelectWorktreeDisplay(b *testing.B) {
 	}
 	
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var output bytes.Buffer
 		input := &mockStringReader{strings.NewReader("q\n")}
 		_, _ = simpleSelectWorktreeWithFiles(worktrees, &mockFile{&output}, &mockFile{input})

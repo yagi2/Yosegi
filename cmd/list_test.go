@@ -357,13 +357,12 @@ func TestListCommandIntegration(t *testing.T) {
 func BenchmarkListCommandCreation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		cmd := &cobra.Command{
+		_ = &cobra.Command{
 			Use:     "list",
 			Short:   "List all git worktrees",
 			Long:    "Display an interactive list of all git worktrees in the repository.",
 			Aliases: []string{"ls", "l"},
 		}
-		_ = cmd
 	}
 }
 

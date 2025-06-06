@@ -216,7 +216,7 @@ func BenchmarkFallbackSelector(b *testing.B) {
 	worktrees := createSampleWorktrees()
 	
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, _ = fallbackSelector(worktrees)
 	}
 }
@@ -225,7 +225,7 @@ func BenchmarkSmartSelectWorktree(b *testing.B) {
 	worktrees := createSampleWorktrees()
 	
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, _ = SmartSelectWorktree(worktrees)
 	}
 }

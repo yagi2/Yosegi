@@ -134,7 +134,7 @@ brews:
       branch: main
     url_template: "https://github.com/yagi2/Yosegi/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     download_strategy: CurlDownloadStrategy
-    folder: Formula
+    directory: Formula
     homepage: "https://github.com/yagi2/Yosegi"
     description: "Interactive git worktree management tool with beautiful TUI"
     license: "MIT"
