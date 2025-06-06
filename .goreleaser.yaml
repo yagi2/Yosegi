@@ -168,10 +168,6 @@ signs:
 announce:
   skip: "{{gt .Patch 0}}"
   
-# Git configuration
-git:
-  ignore_tags:
-    - "{{ .Env.NIGHTLY_TAG }}"
 
 # Universal Binaries for macOS
 universal_binaries:
