@@ -42,6 +42,12 @@ Yosegi supports non-interactive mode for shell scripting and command substitutio
 - `go fmt ./...` - Format all Go files
 - `go vet ./...` - Run Go vet for static analysis
 
+### Release and Distribution
+- `go install github.com/yagi2/yosegi@latest` - Install latest version
+- `go install github.com/yagi2/yosegi@v1.0.0` - Install specific version
+- GoReleaser handles automated releases with GitHub Actions
+- Pre-built binaries available for Windows, macOS, and Linux (AMD64, ARM64)
+
 ### Module Management
 - `go mod init` - Initialize go module (if needed)
 - `go mod download` - Download dependencies
@@ -117,6 +123,8 @@ Run `task --list-all` to see all available tasks. Key tasks include:
 - `task clean` - Clean build artifacts
 - `task ci` - Run all CI checks
 
+Note: Docker-related tasks have been removed as Docker support was eliminated to simplify the release process.
+
 ## Yosegi-Specific Development Guidelines
 
 ### TUI Development
@@ -140,6 +148,37 @@ Run `task --list-all` to see all available tasks. Key tasks include:
 - Mock git operations for unit tests
 - Test both success and error paths
 - Ensure TUI components handle all user inputs gracefully
+- Cross-platform testing (Windows, macOS, Linux)
+- TUI tests may need to be skipped on Windows CI due to timeout issues
+
+### Cross-Platform Compatibility
+- Use `filepath.Join()` for cross-platform path handling
+- Use `runtime.GOOS` for platform-specific logic in tests
+- Handle Windows-specific path separators and permissions
+- Test Windows ARM64 support where applicable
+
+## Release Process
+
+### Automated Release Workflow
+- **Trigger**: Push git tag (e.g., `v1.0.0`)
+- **CI/CD**: GitHub Actions automatically runs tests and GoReleaser
+- **Artifacts**: Creates cross-platform binaries, archives, and checksums
+- **Security**: Artifacts are signed with cosign for supply chain security
+- **Distribution**: Published to GitHub Releases for manual download
+
+### GoReleaser Configuration
+- Uses GoReleaser v2 with modern configuration format
+- Builds for multiple platforms: Linux, macOS, Windows (AMD64, ARM64)
+- Creates universal binaries for macOS (Intel + Apple Silicon)
+- Generates changelog from conventional commits
+- No Docker support (removed to simplify process)
+
+### Dependency Management
+- **Dependabot**: Automated dependency updates every Monday
+  - Go modules: 09:00 JST (max 5 PRs)
+  - GitHub Actions: 09:30 JST (max 3 PRs)
+- **Security**: Automatic vulnerability scanning and updates
+- **Labels**: Auto-applied `dependencies`, `go`, `github-actions`
 
 ## Interaction Guidelines
 - Always response in Japanese
