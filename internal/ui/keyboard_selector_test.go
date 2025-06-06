@@ -307,7 +307,7 @@ func BenchmarkKeyboardSelectorRender(b *testing.B) {
 	selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{&input}, &mockFile{&output})
 	
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		output.Reset()
 		selector.render()
 	}
@@ -321,10 +321,10 @@ func BenchmarkKeyboardSelectorReadKey(b *testing.B) {
 	keyData := []byte{106} // 'j' key
 	
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var output bytes.Buffer
 		input := &mockKeyReader{data: keyData}
 		selector := newKeyboardSelectorWithFiles(worktrees, &mockFile{input}, &mockFile{&output})
-		selector.readKey()
+		_, _ = selector.readKey() // Ignore return value and error in test
 	}
 }

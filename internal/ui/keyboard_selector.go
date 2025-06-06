@@ -118,7 +118,7 @@ func (k *KeyboardSelector) restoreMode() {
 		cmd.Stderr = os.Stderr
 	}
 	
-	cmd.Run() // Ignore errors during cleanup
+	_ = cmd.Run() // Explicitly ignore errors during cleanup
 }
 
 // readKey reads a single key from input and returns a normalized key name

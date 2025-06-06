@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bytes"
+	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -356,14 +358,13 @@ func TestListCommandIntegration(t *testing.T) {
 // Benchmark test
 func BenchmarkListCommandCreation(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		cmd := &cobra.Command{
+	for b.Loop() {
+		_ = &cobra.Command{
 			Use:     "list",
 			Short:   "List all git worktrees",
 			Long:    "Display an interactive list of all git worktrees in the repository.",
 			Aliases: []string{"ls", "l"},
 		}
-		_ = cmd
 	}
 }
 
@@ -380,7 +381,7 @@ func BenchmarkListCommandHelp(b *testing.B) {
 	testCmd.SetErr(&buf)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
 		if err := testCmd.Execute(); err != nil {
@@ -391,6 +392,11 @@ func BenchmarkListCommandHelp(b *testing.B) {
 }
 
 func TestRunRemoveWithSelectedWorktree(t *testing.T) {
+	// Skip TUI tests on Windows CI
+	if runtime.GOOS == "windows" && os.Getenv("CI") != "" {
+		t.Skip("Skipping TUI test on Windows CI")
+	}
+
 	tests := []struct {
 		name        string
 		worktree    git.Worktree

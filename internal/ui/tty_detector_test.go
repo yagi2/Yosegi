@@ -47,7 +47,7 @@ func TestGetTTYFiles(t *testing.T) {
 		{
 			name:       "BasicTTYControl",
 			capability: BasicTTYControl,
-			expectErr:  true, // In test environment, /dev/tty is not available
+			expectErr:  runtime.GOOS != "windows", // On Windows, falls back to stdin/stderr
 		},
 		{
 			name:       "NoTTYControl",
@@ -150,7 +150,7 @@ func TestGetTTYFilesNoTTYControl(t *testing.T) {
 
 // Benchmark tests
 func BenchmarkDetectTTYCapability(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		DetectTTYCapability()
 	}
 }
@@ -164,7 +164,7 @@ func BenchmarkGetTTYFiles(b *testing.B) {
 	
 	for _, cap := range capabilities {
 		b.Run(cap.String(), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				_, _, cleanup, err := GetTTYFiles(cap)
 				if err == nil {
 					cleanup()

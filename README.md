@@ -16,6 +16,26 @@ Yosegiは、現代の「Vibe Coding」時代のために設計されたCLIツー
 
 ## インストール
 
+### Go Install（推奨）
+
+```bash
+go install github.com/yagi2/yosegi@latest
+```
+
+### プリビルドバイナリ
+
+[リリースページ](https://github.com/yagi2/Yosegi/releases)から対応するプラットフォーム用のバイナリをダウンロード:
+
+```bash
+# Linux/macOS (自動取得)
+curl -L https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_$(uname -s)_$(uname -m).tar.gz | tar xz
+sudo mv yosegi /usr/local/bin/
+
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://github.com/yagi2/Yosegi/releases/latest/download/yosegi_Windows_x86_64.zip" -OutFile "yosegi.zip"
+Expand-Archive -Path "yosegi.zip" -DestinationPath "."
+```
+
 ### ソースからビルド
 
 ```bash
@@ -239,7 +259,7 @@ task lint
 
 ## 動作要件
 
-- Go 1.21以上
+- Go 1.24以上
 - worktree機能をサポートするGit
 - カラー表示対応のターミナル
 

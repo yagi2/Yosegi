@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -140,19 +141,25 @@ func TestGetConfigPath(t *testing.T) {
 			t.Fatalf("Failed to change directory: %v", err)
 		}
 
-		// Mock home directory
-		originalHome := os.Getenv("HOME")
+		// Mock home directory for cross-platform compatibility
+		var originalHome, originalUserProfile string
 		mockHome := filepath.Join(tmpDir, "mock-home")
 		if err := os.MkdirAll(mockHome, 0755); err != nil {
 			t.Fatalf("Failed to create mock home: %v", err)
 		}
+		
+		// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+		originalHome = os.Getenv("HOME")
+		originalUserProfile = os.Getenv("USERPROFILE")
 		if err := os.Setenv("HOME", mockHome); err != nil {
 			t.Fatalf("Failed to set HOME: %v", err)
 		}
+		if err := os.Setenv("USERPROFILE", mockHome); err != nil {
+			t.Fatalf("Failed to set USERPROFILE: %v", err)
+		}
 		defer func() {
-			if err := os.Setenv("HOME", originalHome); err != nil {
-				t.Logf("Failed to restore HOME: %v", err)
-			}
+			os.Setenv("HOME", originalHome)
+			os.Setenv("USERPROFILE", originalUserProfile)
 		}()
 
 		configPath, err := getConfigPath()
@@ -364,19 +371,25 @@ func TestSaveConfig(t *testing.T) {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
 
-	// Mock home directory
-	originalHome := os.Getenv("HOME")
+	// Mock home directory for cross-platform compatibility
+	var originalHome, originalUserProfile string
 	mockHome := filepath.Join(tmpDir, "mock-home")
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
+	
+	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	if err := os.Setenv("HOME", mockHome); err != nil {
 		t.Fatalf("Failed to set HOME: %v", err)
 	}
+	if err := os.Setenv("USERPROFILE", mockHome); err != nil {
+		t.Fatalf("Failed to set USERPROFILE: %v", err)
+	}
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			t.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 
 	// Create a custom config
@@ -455,19 +468,25 @@ func TestInitConfig(t *testing.T) {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
 
-	// Mock home directory
-	originalHome := os.Getenv("HOME")
+	// Mock home directory for cross-platform compatibility
+	var originalHome, originalUserProfile string
 	mockHome := filepath.Join(tmpDir, "mock-home")
 	if err := os.MkdirAll(mockHome, 0755); err != nil {
 		t.Fatalf("Failed to create mock home: %v", err)
 	}
+	
+	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	if err := os.Setenv("HOME", mockHome); err != nil {
 		t.Fatalf("Failed to set HOME: %v", err)
 	}
+	if err := os.Setenv("USERPROFILE", mockHome); err != nil {
+		t.Fatalf("Failed to set USERPROFILE: %v", err)
+	}
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			t.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 
 	// Initialize config
@@ -497,7 +516,7 @@ func TestInitConfig(t *testing.T) {
 func TestConfigStructValidation(t *testing.T) {
 	// Test that all config struct fields have yaml tags
 	configType := reflect.TypeOf(Config{})
-	for i := 0; i < configType.NumField(); i++ {
+	for i := range configType.NumField() {
 		field := configType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -507,7 +526,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test ThemeConfig struct
 	themeType := reflect.TypeOf(ThemeConfig{})
-	for i := 0; i < themeType.NumField(); i++ {
+	for i := range themeType.NumField() {
 		field := themeType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -517,7 +536,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test GitConfig struct
 	gitType := reflect.TypeOf(GitConfig{})
-	for i := 0; i < gitType.NumField(); i++ {
+	for i := range gitType.NumField() {
 		field := gitType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -527,7 +546,7 @@ func TestConfigStructValidation(t *testing.T) {
 
 	// Test UIConfig struct
 	uiType := reflect.TypeOf(UIConfig{})
-	for i := 0; i < uiType.NumField(); i++ {
+	for i := range uiType.NumField() {
 		field := uiType.Field(i)
 		yamlTag := field.Tag.Get("yaml")
 		if yamlTag == "" {
@@ -539,6 +558,10 @@ func TestConfigStructValidation(t *testing.T) {
 // Test edge cases and error conditions
 func TestConfigEdgeCases(t *testing.T) {
 	t.Run("Save to read-only directory", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping permission test on Windows")
+		}
+
 		tmpDir, err := os.MkdirTemp("", "yosegi-readonly-test-*")
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
@@ -555,14 +578,19 @@ func TestConfigEdgeCases(t *testing.T) {
 			t.Fatalf("Failed to create read-only directory: %v", err)
 		}
 
-		originalHome := os.Getenv("HOME")
+		// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+		var originalHome, originalUserProfile string
+		originalHome = os.Getenv("HOME")
+		originalUserProfile = os.Getenv("USERPROFILE")
 		if err := os.Setenv("HOME", readOnlyDir); err != nil {
 			t.Fatalf("Failed to set HOME: %v", err)
 		}
+		if err := os.Setenv("USERPROFILE", readOnlyDir); err != nil {
+			t.Fatalf("Failed to set USERPROFILE: %v", err)
+		}
 		defer func() {
-			if err := os.Setenv("HOME", originalHome); err != nil {
-				t.Logf("Failed to restore HOME: %v", err)
-			}
+			os.Setenv("HOME", originalHome)
+			os.Setenv("USERPROFILE", originalUserProfile)
 		}()
 
 		cfg := defaultConfig()
@@ -573,6 +601,9 @@ func TestConfigEdgeCases(t *testing.T) {
 	})
 
 	t.Run("Load with permission denied", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping permission test on Windows")
+		}
 		if os.Getuid() == 0 {
 			t.Skip("Skipping permission test when running as root")
 		}
@@ -668,7 +699,7 @@ ui:
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := Load()
 		if err != nil {
 			b.Errorf("Load() failed: %v", err)
@@ -677,16 +708,20 @@ ui:
 }
 
 func TestGetConfigPathErrors(t *testing.T) {
-	// Test getConfigPath when HOME is not set
-	originalHome := os.Getenv("HOME")
+	// Test getConfigPath when HOME/USERPROFILE are not set
+	var originalHome, originalUserProfile string
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			t.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 
 	if err := os.Unsetenv("HOME"); err != nil {
 		t.Logf("Failed to unset HOME: %v", err)
+	}
+	if err := os.Unsetenv("USERPROFILE"); err != nil {
+		t.Logf("Failed to unset USERPROFILE: %v", err)
 	}
 
 	// Create local config file to test local config path
@@ -733,16 +768,26 @@ func TestGetConfigPathErrors(t *testing.T) {
 
 func TestSaveErrors(t *testing.T) {
 	// Test Save with invalid config path
-	originalHome := os.Getenv("HOME")
+	var originalHome, originalUserProfile string
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			t.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 
-	// Set HOME to an invalid path
-	if err := os.Setenv("HOME", "/dev/null/invalid"); err != nil {
+	// Set both HOME (Unix) and USERPROFILE (Windows) to invalid paths
+	var invalidPath string
+	if runtime.GOOS == "windows" {
+		invalidPath = "Z:\\invalid\\path\\that\\does\\not\\exist"
+	} else {
+		invalidPath = "/dev/null/invalid"
+	}
+	if err := os.Setenv("HOME", invalidPath); err != nil {
 		t.Fatalf("Failed to set HOME: %v", err)
+	}
+	if err := os.Setenv("USERPROFILE", invalidPath); err != nil {
+		t.Fatalf("Failed to set USERPROFILE: %v", err)
 	}
 
 	config := defaultConfig()
@@ -840,18 +885,23 @@ aliases:
 		b.Fatalf("Failed to create config file: %v", err)
 	}
 
-	originalHome := os.Getenv("HOME")
+	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+	var originalHome, originalUserProfile string
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			b.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 	if err := os.Setenv("HOME", tmpDir); err != nil {
 		b.Fatalf("Failed to set HOME: %v", err)
 	}
+	if err := os.Setenv("USERPROFILE", tmpDir); err != nil {
+		b.Fatalf("Failed to set USERPROFILE: %v", err)
+	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := Load()
 		if err != nil {
 			b.Errorf("Failed to load config: %v", err)
@@ -875,20 +925,25 @@ func BenchmarkSaveConfig(b *testing.B) {
 		b.Fatalf("Failed to create config dir: %v", err)
 	}
 
-	originalHome := os.Getenv("HOME")
+	// Set both HOME (Unix) and USERPROFILE (Windows) for cross-platform compatibility
+	var originalHome, originalUserProfile string
+	originalHome = os.Getenv("HOME")
+	originalUserProfile = os.Getenv("USERPROFILE")
 	defer func() {
-		if err := os.Setenv("HOME", originalHome); err != nil {
-			b.Logf("Failed to restore HOME: %v", err)
-		}
+		os.Setenv("HOME", originalHome)
+		os.Setenv("USERPROFILE", originalUserProfile)
 	}()
 	if err := os.Setenv("HOME", tmpDir); err != nil {
 		b.Fatalf("Failed to set HOME: %v", err)
+	}
+	if err := os.Setenv("USERPROFILE", tmpDir); err != nil {
+		b.Fatalf("Failed to set USERPROFILE: %v", err)
 	}
 
 	config := defaultConfig()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		err := Save(config)
 		if err != nil {
 			b.Errorf("Failed to save config: %v", err)

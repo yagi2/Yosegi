@@ -136,8 +136,13 @@ func TestRootCommandConfiguration(t *testing.T) {
 		t.Errorf("Expected command to have long description")
 	}
 
-	if rootCmd.Version != "0.1.0" {
-		t.Errorf("Expected version to be '0.1.0', got '%s'", rootCmd.Version)
+	if rootCmd.Version == "" {
+		t.Errorf("Expected version to be set, got empty string")
+	}
+	
+	// Version should contain either "dev" or a version number
+	if !strings.Contains(rootCmd.Version, "dev") && !strings.Contains(rootCmd.Version, "v") {
+		t.Errorf("Expected version to contain 'dev' or version number, got '%s'", rootCmd.Version)
 	}
 
 	// Test that completion is disabled
@@ -418,7 +423,7 @@ func BenchmarkRootCommandHelp(b *testing.B) {
 	testCmd.SetErr(&buf)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		buf.Reset()
 		testCmd.SetArgs([]string{"--help"})
 		if err := testCmd.Execute(); err != nil {
