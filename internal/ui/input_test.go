@@ -544,7 +544,7 @@ func BenchmarkInputView(b *testing.B) {
 	model := NewInput("Benchmark Test", []string{"Field1", "Field2", "Field3"}, []string{"default1", "default2", "default3"})
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = model.View()
 	}
 }
@@ -554,7 +554,7 @@ func BenchmarkInputUpdate(b *testing.B) {
 	msg := tea.KeyMsg{Type: tea.KeyTab}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		newModel, _ := model.Update(msg)
 		model = newModel.(InputModel)
 	}
@@ -565,7 +565,7 @@ func BenchmarkNewInput(b *testing.B) {
 	defaults := []string{"John", "john@example.com", "555-1234", "123 Main St", "Anytown", "ST", "12345"}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = NewInput("Benchmark", prompts, defaults)
 	}
 }
