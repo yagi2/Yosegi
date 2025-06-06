@@ -144,17 +144,17 @@ func (m *manager) Remove(path string, force bool) error {
 
 	cmd := exec.Command("git", args...)
 	cmd.Dir = m.repoRoot
-	
+
 	// Get detailed error output for debugging
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		errorMsg := string(output)
-		
+
 		// Common error patterns and solutions
 		if strings.Contains(errorMsg, "is dirty") {
 			return fmt.Errorf("worktree contains uncommitted changes. Use --force flag to remove anyway: %s", errorMsg)
 		}
-		
+
 		if strings.Contains(errorMsg, "does not exist") {
 			// Worktree might be already removed but git doesn't know
 			// Try to prune first
@@ -181,14 +181,14 @@ func (m *manager) Remove(path string, force bool) error {
 				return fmt.Errorf("failed to prune worktrees: %s", string(pruneOutput))
 			}
 		}
-		
+
 		if strings.Contains(errorMsg, "is locked") {
 			// Worktree is locked, need force flag
 			if !force {
 				return fmt.Errorf("worktree is locked. Use --force flag to remove anyway: %s", errorMsg)
 			}
 		}
-		
+
 		return fmt.Errorf("failed to remove worktree: %s", errorMsg)
 	}
 	return nil
@@ -260,7 +260,7 @@ func (m *manager) DeleteBranch(branch string, force bool) error {
 
 	cmd := exec.Command("git", args...)
 	cmd.Dir = m.repoRoot
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		errorMsg := string(output)
@@ -295,18 +295,18 @@ func (m *manager) HasUnpushedCommits(branch string) (bool, int, error) {
 	}
 
 	upstream := strings.TrimSpace(string(upstreamOutput))
-	
+
 	// Count commits ahead of upstream
 	cmd := exec.Command("git", "rev-list", "--count", fmt.Sprintf("%s..%s", upstream, branch))
 	cmd.Dir = m.repoRoot
-	
+
 	output, err := cmd.Output()
 	if err != nil {
 		return false, 0, fmt.Errorf("failed to check unpushed commits: %w", err)
 	}
-	
+
 	count := 0
 	fmt.Sscanf(strings.TrimSpace(string(output)), "%d", &count)
-	
+
 	return count > 0, count, nil
 }

@@ -11,6 +11,7 @@ Yosegi is an interactive git worktree management tool with a beautiful TUI (Term
 ### Yosegi Commands
 - `yosegi` - Run list command by default (interactive worktree selector)
 - `yosegi list` (aliases: `ls`, `l`) - List all worktrees interactively
+  - `-p, --print` - Print selected worktree path without interactive UI (for use in scripts)
 - `yosegi new [branch]` (aliases: `add`, `create`, `n`) - Create a new worktree
   - `-b, --create-branch` - Create a new branch
   - `-p, --path` - Specify worktree path
@@ -18,6 +19,13 @@ Yosegi is an interactive git worktree management tool with a beautiful TUI (Term
   - `-f, --force` - Force removal
 - `yosegi config init` - Create default config file
 - `yosegi config show` - Display current configuration
+
+### Non-Interactive Mode
+Yosegi supports non-interactive mode for shell scripting and command substitution:
+- Use `--print` flag or `-p` to show interactive TUI on stderr and output selected path to stdout
+- Without `--print`, automatically detects non-TTY environments and returns first non-current worktree
+- Example: `cd $(yosegi list --print)` - shows TUI selector, then changes to selected directory
+- Example: `cd $(yosegi list)` - automatically selects first non-current worktree
 
 ## Development Commands
 

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func TestListCommand(t *testing.T) {
@@ -157,21 +156,33 @@ func TestListCommandByAlias(t *testing.T) {
 }
 
 func TestListCommandFlags(t *testing.T) {
-	// Test that list command doesn't have unexpected flags
-	// List command should be simple with no additional flags
+	// Test that list command has the expected flags
 	flags := listCmd.Flags()
 
-	// Should only have inherited flags from cobra (help, etc.)
-	if flags.HasFlags() {
-		// Check if there are any unexpected flags
-		expectedFlags := map[string]bool{
-			"help": true,
+	// Test --print flag exists
+	printFlag := flags.Lookup("print")
+	if printFlag == nil {
+		t.Error("List command should have --print flag")
+	} else {
+		// Test flag properties
+		if printFlag.Shorthand != "p" {
+			t.Errorf("Expected --print shorthand to be 'p', got '%s'", printFlag.Shorthand)
 		}
-		flags.VisitAll(func(flag *pflag.Flag) {
-			if !expectedFlags[flag.Name] {
-				t.Errorf("Unexpected flag '%s' found in list command", flag.Name)
-			}
-		})
+
+		if printFlag.DefValue != "false" {
+			t.Errorf("Expected --print default value to be 'false', got '%s'", printFlag.DefValue)
+		}
+
+		if printFlag.Usage == "" {
+			t.Error("--print flag should have usage description")
+		}
+	}
+
+	// Test that print flag is a bool
+	if printFlag != nil {
+		if printFlag.Value.Type() != "bool" {
+			t.Errorf("Expected --print flag to be bool type, got '%s'", printFlag.Value.Type())
+		}
 	}
 }
 
